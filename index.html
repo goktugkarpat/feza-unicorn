@@ -38,7 +38,6 @@
   .fcard.sel { box-shadow: 0 10px 0 #ff7ab8, 0 0 0 6px #ffe56b, 0 18px 34px rgba(214,58,127,0.45); }
   .fcard:active { transform: scale(0.95); }
   @keyframes bob { 50% { transform: translateY(-8px); } }
-  #musicHint { margin-top: 16px; font-size: 20px; color: #7b4fc9; animation: pulse 1.6s ease-in-out infinite; }
   @keyframes pulse { 50% { transform: scale(1.07); } }
   #start .keyhint { margin-top: 22px; font-size: 20px; color: #7b4fc9; }
   #start .parent { margin-top: 22px; max-width: 640px; font-size: 16px; color: #6a5a7a; background: rgba(255,255,255,0.7);
@@ -126,7 +125,6 @@
     <button class="fcard sel" data-o="gokkusagi"><canvas></canvas><span>Gökkuşağı Feza</span></button>
     <button class="fcard" data-o="sade"><canvas></canvas><span>Feza</span></button>
   </div>
-  <div id="musicHint">🎵 Müzik için ekrana dokun</div>
   <div class="keyhint">Hangi Feza ile oynamak istersin? Birine dokun! <small>(klavyede ← → ve Boşluk)</small></div>
   <div class="parent"><b>Nasıl oynanır:</b> Parmağını ekrana koy ve <b>gezdir</b>: Feza parmağın gittiği yere koşar. Sarı <b>Zıpla</b> düğmesiyle zıplar.
     Kayarken parmağını sağa sola kaydır. 🔊 düğmesi son görevi tekrar okur. Klavyede ok tuşları ve Boşluk da çalışır. Sesi açmayı unutmayın!</div>
@@ -1995,10 +1993,11 @@ var cardEls = [...document.querySelectorAll('.fcard')], selCard = 0, cardsOn, me
 function selectCard(i) { selCard = i; cardEls.forEach((c, k) => c.classList.toggle('sel', k === i)); }
 cardEls.forEach((c, i) => { c.addEventListener('pointerenter', () => selectCard(i)); c.addEventListener('click', e => { e.stopPropagation(); menuWake(); startGame(c.dataset.o); }); });
 function menuWake() {   // browsers only allow sound after the first touch/click
-  if (menuAwake) return; menuAwake = true; A.init(); N.init(); VO.unlock(); $('musicHint').classList.add('hidden');
+  if (menuAwake) return; menuAwake = true; A.init(); N.init(); VO.unlock();
   setTimeout(() => { if (G.mode === 'start') say(LN.menu); }, 150);
 }
-$('start').addEventListener('pointerdown', menuWake);
+// the very first touch/click/key anywhere unlocks sound (browsers block audio until then)
+['pointerdown', 'touchend', 'keydown'].forEach(ev => addEventListener(ev, () => { if (G.mode === 'start') menuWake(); }, { capture: true }));
 const cardR = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
 cardR.setPixelRatio(Math.min(devicePixelRatio, 2)); cardR.setSize(250, 300); cardR.setClearColor(0x000000, 0);
 const cardScene = new THREE.Scene(); cardScene.add(new THREE.HemisphereLight(0xffffff, 0xffd6ea, 1.5));
@@ -2019,7 +2018,7 @@ function renderCards() {
   });
 }
 function stopCards() { cardsOn = false; cardR.dispose(); cardR.forceContextLoss?.(); }
-A.init();   // may start silent (autoplay rules); the first touch resumes it
+A.init();   // music starts right away where the browser allows it; otherwise on the first touch
 ['gesturestart', 'gesturechange', 'dblclick', 'contextmenu'].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
 document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 // ?ikon → poses Feza on Işıltı in front of the rainbow, used to render the app icon
