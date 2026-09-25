@@ -26,14 +26,22 @@
     background: linear-gradient(90deg,#ff4d4d,#ff9f1c,#ffd21f,#4cd964,#3fa9ff,#4b4fd8,#a860ff);
     -webkit-background-clip: text; background-clip: text; color: transparent;
     filter: drop-shadow(0 5px 0 #fff) drop-shadow(0 10px 18px rgba(120,60,160,0.35)); }
-  #start h2 { margin: 12px 0 34px; font-size: clamp(22px, 3.6vw, 40px); color: #7b4fc9; text-shadow: 0 3px 0 #fff; }
-  #btnStart { font: inherit; font-size: 44px; padding: 22px 70px; border: none; border-radius: 999px; cursor: pointer; color: #fff;
-    background: linear-gradient(180deg,#ff7ab8,#ff4f9a); box-shadow: 0 10px 0 #d63a7f, 0 18px 30px rgba(214,58,127,0.45);
-    animation: pulse 1.6s ease-in-out infinite; }
-  #btnStart:active { transform: translateY(6px); box-shadow: 0 4px 0 #d63a7f; }
+  #start h2 { margin: 10px 0 22px; font-size: clamp(22px, 3.6vw, 40px); color: #7b4fc9; text-shadow: 0 3px 0 #fff; }
+  #cards { display: flex; gap: clamp(18px, 4vw, 48px); }
+  .fcard { font: inherit; border: none; padding: 10px 10px 16px; border-radius: 34px; cursor: pointer; background: rgba(255,255,255,0.78);
+    box-shadow: 0 10px 0 rgba(160,110,230,0.45), 0 18px 34px rgba(120,60,160,0.3); display: flex; flex-direction: column; align-items: center;
+    transition: transform .2s; animation: bob 2.6s ease-in-out infinite; touch-action: manipulation; }
+  .fcard:nth-child(2) { animation-delay: -1.3s; }
+  .fcard canvas { width: clamp(180px, 24vw, 250px); height: clamp(216px, 29vw, 300px); display: block; border-radius: 26px; }
+  .fcard span { font-size: clamp(22px, 2.8vw, 32px); color: #7b4fc9; margin-top: 8px; }
+  .fcard[data-o=gokkusagi] span { background: linear-gradient(90deg,#ff4d4d,#ff9f1c,#e6b800,#2fbf4f,#3fa9ff,#4b4fd8,#a860ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .fcard.sel { box-shadow: 0 10px 0 #ff7ab8, 0 0 0 6px #ffe56b, 0 18px 34px rgba(214,58,127,0.45); }
+  .fcard:active { transform: scale(0.95); }
+  @keyframes bob { 50% { transform: translateY(-8px); } }
+  #musicHint { margin-top: 16px; font-size: 20px; color: #7b4fc9; animation: pulse 1.6s ease-in-out infinite; }
   @keyframes pulse { 50% { transform: scale(1.07); } }
   #start .keyhint { margin-top: 22px; font-size: 20px; color: #7b4fc9; }
-  #start .parent { margin-top: 36px; max-width: 640px; font-size: 16px; color: #6a5a7a; background: rgba(255,255,255,0.7);
+  #start .parent { margin-top: 22px; max-width: 640px; font-size: 16px; color: #6a5a7a; background: rgba(255,255,255,0.7);
     padding: 12px 20px; border-radius: 16px; line-height: 1.5; }
   #start .parent b { color: #7b4fc9; }
 
@@ -114,8 +122,12 @@
 <div id="start">
   <h1>Feza ve Işıltı</h1>
   <h2>🦄 Gökkuşağı Kaydırağı 🌈</h2>
-  <button id="btnStart" autofocus>▶ Oyna</button>
-  <div class="keyhint">ya da klavyede <b>Boşluk</b> tuşuna bas</div>
+  <div id="cards">
+    <button class="fcard sel" data-o="gokkusagi"><canvas></canvas><span>Gökkuşağı Feza</span></button>
+    <button class="fcard" data-o="sade"><canvas></canvas><span>Sade Feza</span></button>
+  </div>
+  <div id="musicHint">🎵 Müzik için ekrana dokun</div>
+  <div class="keyhint">Hangi Feza ile oynamak istersin? Birine dokun! <small>(klavyede ← → ve Boşluk)</small></div>
   <div class="parent"><b>Nasıl oynanır:</b> Parmağını ekrana koy ve <b>gezdir</b>: Feza parmağın gittiği yere koşar. Sarı <b>Zıpla</b> düğmesiyle zıplar.
     Kayarken parmağını sağa sola kaydır. 🔊 düğmesi son görevi tekrar okur. Klavyede ok tuşları ve Boşluk da çalışır. Sesi açmayı unutmayın!</div>
 </div>
@@ -163,7 +175,7 @@ $('app').appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0xffe6f3, 110, 300);
-const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.1, 1200);
+const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.3, 1200);
 addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
 
 const gradTex = new THREE.DataTexture(new Uint8Array([120, 175, 225, 255]), 4, 1, THREE.RedFormat);
@@ -281,7 +293,7 @@ const grassTex = rep(canvasTex(512, 512, (g, w, h) => {
   for (let i = 0; i < 70; i++) { const gr = g.createRadialGradient(0, 0, 0, 0, 0, 1); const x = Math.random() * w, y = Math.random() * h, r = 20 + Math.random() * 60;
     g.fillStyle = Math.random() < 0.5 ? 'rgba(130,205,95,0.35)' : 'rgba(175,235,130,0.35)'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); }
   for (let i = 0; i < 5000; i++) { const x = Math.random() * w, y = Math.random() * h, l = 3 + Math.random() * 6, a = -Math.PI / 2 + (Math.random() - 0.5) * 0.9;
-    g.strokeStyle = ['rgba(95,180,75,0.55)', 'rgba(185,240,140,0.6)', 'rgba(120,200,85,0.5)'][i % 3]; g.lineWidth = 1.4;
+    g.strokeStyle = ['rgba(95,180,75,0.3)', 'rgba(185,240,140,0.32)', 'rgba(120,200,85,0.28)'][i % 3]; g.lineWidth = 1.6;   // soft: fine high-contrast detail shimmers when moving
     g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke(); }
   for (let i = 0; i < 40; i++) { g.fillStyle = ['#ffffff', '#fff27a', '#ffc2e0'][i % 3]; g.beginPath(); g.arc(Math.random() * w, Math.random() * h, 1.8, 0, TAU); g.fill(); }
 }), 110, 110);
@@ -665,8 +677,18 @@ function kidCheer(k, t) { const u = k.userData; u.arms[0].rotation.set(0, 0, -2.
 /* =====================================================================
    FEZA
    ===================================================================== */
-const feza = makeChild({ skin: 0xf6d3bc, hair: 0x4a2a17, hair2: 0x67401f, hairStyle: 'feza', shirtMap: shirtTex, shortsMap: true,
-  shoe: 0x6b4a33, eye: 0x3d2212, big: true, smirk: true });
+// Two outfits for Feza, picked on the start screen: rainbow clothes, or the plain tee from his photo
+const rainbowTex = canvasTex(256, 256, (g, w, h) => {
+  for (let i = 0; i < 7; i++) { g.fillStyle = hex(RAINBOW[i]); g.fillRect(0, i * h / 7, w, h / 7 + 1); }
+  g.fillStyle = 'rgba(255,255,255,0.9)'; for (let i = 0; i < 14; i++) { starPath(g, (i * 73) % w + 10, (i * 47) % h + 8, 7, 3); g.fill(); }
+});
+rainbowTex.wrapS = rainbowTex.wrapT = THREE.RepeatWrapping; rainbowTex.repeat.set(1, 2.6);   // narrow stripes: the whole rainbow shows on the chest
+const OUTFITS = {
+  gokkusagi: { shirtMap: rainbowTex, shorts: 0x5b4fd6, shoe: 0xff5c9a },
+  sade: { shirtMap: shirtTex, shortsMap: true, shoe: 0x6b4a33 },
+};
+const makeFeza = outfit => makeChild({ skin: 0xf6d3bc, hair: 0x4a2a17, hair2: 0x67401f, hairStyle: 'feza', eye: 0x3d2212, big: true, smirk: true, ...OUTFITS[outfit] });
+let feza = makeFeza('gokkusagi'); feza.userData.outfit = 'gokkusagi';
 scene.add(feza);
 
 /* =====================================================================
@@ -781,19 +803,21 @@ function animUnicorn(dt, speed, pose) {
 const ground = new THREE.Mesh(new THREE.CircleGeometry(700, 64), M(0xffffff, { map: grassTex }));
 ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
 
-const STREET_M = M(0xffffff, { map: paveTex }), CURB_M = M(0xffb6d5);
-function street(x0, x1, z0, z1) {
+// Flat ground layers never share a height (otherwise they flicker where they overlap): each layer gets its own height + polygon offset.
+const layerMat = (lv, o) => M(0xffffff, { ...o, polygonOffset: true, polygonOffsetFactor: -lv, polygonOffsetUnits: -lv * 2 });
+const STREET_MS = [1, 2, 3].map(lv => layerMat(lv, { map: paveTex })), CURB_M = M(0xffb6d5);
+function street(x0, x1, z0, z1, lv) {
   const w = x1 - x0, d = z1 - z0;
-  const s = new THREE.Mesh(scaleUV(new THREE.PlaneGeometry(w, d), w / 3, d / 3), STREET_M); s.rotation.x = -Math.PI / 2; s.position.set((x0 + x1) / 2, 0.02, (z0 + z1) / 2); s.receiveShadow = true; scene.add(s);
+  const s = new THREE.Mesh(scaleUV(new THREE.PlaneGeometry(w, d), w / 3, d / 3), STREET_MS[lv - 1]); s.rotation.x = -Math.PI / 2; s.position.set((x0 + x1) / 2, 0.015 * lv, (z0 + z1) / 2); s.receiveShadow = true; scene.add(s);
 }
-street(-7, 7, -118, 37);
-for (const z of [26, -44, -78]) street(-61, 61, z - 4, z + 4);
-for (const x of [-32, 32]) street(x - 3.5, x + 3.5, -118, 37);
+street(-7, 7, -118, 37, 1);
+for (const x of [-32, 32]) street(x - 3.5, x + 3.5, -118, 37, 2);
+for (const z of [26, -44, -78]) street(-61, 61, z - 4, z + 4, 3);
 // curbs along avenue
 for (const s of [-1, 1]) { const c = mk(new THREE.BoxGeometry(0.5, 0.18, 155), CURB_M, 7.25 * s, 0.09, -40.5, scene); c.receiveShadow = true; }
 // dashed rainbow dots down the avenue
-{ const dotG = new THREE.CircleGeometry(0.55, 16); const im = new THREE.InstancedMesh(dotG, new THREE.MeshBasicMaterial(), 60); const m4 = new THREE.Matrix4(), q = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
-  for (let i = 0; i < 60; i++) { const z = 35 - i * 2.6; m4.compose(new THREE.Vector3(0, 0.03, z), q, new THREE.Vector3(1, 1, 1)); im.setMatrixAt(i, m4); im.setColorAt(i, new THREE.Color(RAINBOW[i % 7]).lerp(new THREE.Color(0xffffff), 0.35)); }
+{ const dotG = new THREE.CircleGeometry(0.55, 16); const im = new THREE.InstancedMesh(dotG, new THREE.MeshBasicMaterial({ polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -8 }), 60); const m4 = new THREE.Matrix4(), q = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
+  for (let i = 0; i < 60; i++) { const z = 35 - i * 2.6; m4.compose(new THREE.Vector3(0, 0.065, z), q, new THREE.Vector3(1, 1, 1)); im.setMatrixAt(i, m4); im.setColorAt(i, new THREE.Color(RAINBOW[i % 7]).lerp(new THREE.Color(0xffffff), 0.35)); }
   scene.add(im); }
 
 // Plaza
@@ -805,8 +829,8 @@ const plazaTex = canvasTex(1024, 1024, (g, w) => {
   for (let a = 0; a < 48; a++) { const an = a / 48 * TAU; g.beginPath(); g.moveTo(cx + Math.cos(an) * 64, cx + Math.sin(an) * 64); g.lineTo(cx + Math.cos(an) * w / 2, cx + Math.sin(an) * w / 2); g.stroke(); }
   for (let i = 0; i < 7; i++) { const an = i / 7 * TAU; g.fillStyle = hex(RAINBOW[i]); starPath(g, cx + Math.cos(an) * 400, cx + Math.sin(an) * 400, 34, 15); g.fill(); }
 });
-{ const p = new THREE.Mesh(new THREE.CircleGeometry(16, 64), M(0xffffff, { map: plazaTex })); p.rotation.x = -Math.PI / 2; p.position.y = 0.04; p.receiveShadow = true; scene.add(p);
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(16, 0.22, 8, 80), CURB_M); ring.rotation.x = Math.PI / 2; ring.position.y = 0.05; scene.add(ring); }
+{ const p = new THREE.Mesh(new THREE.CircleGeometry(16, 64), layerMat(5, { map: plazaTex })); p.rotation.x = -Math.PI / 2; p.position.y = 0.09; p.receiveShadow = true; scene.add(p);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(16, 0.22, 8, 80), CURB_M); ring.rotation.x = Math.PI / 2; ring.position.y = 0.1; scene.add(ring); }
 
 // Fountain
 const fountainDrops = [];
@@ -858,7 +882,7 @@ function blocksView(x, y, z) {   // is this point close to the line between the 
 }
 function updateBalloons(dt, t) {
   _cam.copy(camera.position); _hd.set(P.pos.x, P.y + 1.8, P.pos.z);
-  const ride = ['ride', 'onfoot', 'mounting', 'land'].includes(G.mode);
+  const ride = ['ride', 'onfoot', 'mounting', 'land', 'start', 'intro'].includes(G.mode);
   for (let i = 0; i < balloons.length; i++) {
     const b = balloons[i];
     const vx = b.ax + b.ox, vy = b.ay + (b.fixed ? 0 : b.len), vz = b.az + b.oz;
@@ -989,15 +1013,23 @@ const HAIRS = [0x2b1a10, 0x6b3e1f, 0xe2b560, 0xb5552b, 0x1a1a1a, 0x8a5a2b];
 const SHIRTS = [0xff6fa8, 0x2ec4b6, 0xffd23f, 0x9b6bff, 0xff9f1c, 0x5fd35f, 0x3fa9ff, 0xff5c5c];
 const SHORTS = [0x3a6ea5, 0x2b3a67, 0xff8fc0, 0xffffff, 0x7b61ff, 0x4dbb7c];
 const STYLES = ['short', 'pigtails', 'bun', 'long', 'curly', 'bob'];
-const NAMES = shuffle(['Ela', 'Can', 'Deniz', 'Zeynep', 'Ali', 'Mira', 'Ege', 'Defne', 'Kerem', 'Elif', 'Aras', 'Duru', 'Emir', 'Lina', 'Yusuf', 'Nil', 'Poyraz', 'Ada', 'Arda', 'Asya', 'Mert', 'Lara', 'Efe', 'Nehir', 'Kaan', 'Ece', 'Bora', 'Su']);
-let nameIdx = 0;
-function newKid() {
-  const k = makeChild({ skin: spick(SKINS), hair: spick(HAIRS), hairStyle: spick(STYLES), shirt: spick(SHIRTS), shorts: spick(SHORTS), shoe: spick([0xffffff, 0xff5c8a, 0x3fa9ff, 0x333344]), lod: 0.55 });
-  k.userData.name = NAMES[nameIdx++ % NAMES.length]; return k;
+// Feza's real friends: they wave, say hello and can be greeted back. Every other child is an unnamed extra.
+const FRIENDS = {
+  denizali: { name: 'Deniz Ali', skin: 0xf6d2b8, hair: 0x3b2314, hairStyle: 'short', shirt: 0x3fa9ff, shorts: 0x2b3a67, shoe: 0xffffff },
+  efe: { name: 'Efe', skin: 0xefc19c, hair: 0x6b3e1f, hairStyle: 'curly', shirt: 0x5fd35f, shorts: 0x3a6ea5, shoe: 0x333344 },
+  gun: { name: 'Gün', skin: 0xf6d2b8, hair: 0x8a5a2b, hairStyle: 'bob', shirt: 0xffd23f, shorts: 0x7b61ff, shoe: 0xff5c8a },
+  asya: { name: 'Asya', skin: 0xffe2cf, hair: 0x2b1a10, hairStyle: 'pigtails', shirt: 0xff6fa8, shorts: 0xffffff, shoe: 0xff5c8a },
+  gulru: { name: 'Gülru', skin: 0xefc19c, hair: 0x1a1a1a, hairStyle: 'long', shirt: 0x9b6bff, shorts: 0xff8fc0, shoe: 0xffffff },
+  zeynepada: { name: 'Zeynep Ada', skin: 0xf6d2b8, hair: 0x6b3e1f, hairStyle: 'bun', shirt: 0xff9f1c, shorts: 0x4dbb7c, shoe: 0x3fa9ff },
+};
+const FRIEND_NAMES = Object.values(FRIENDS).map(f => f.name);
+function newKid(friend) {
+  if (friend) { const k = makeChild({ ...friend, lod: 0.75 }); k.userData.name = friend.name; return k; }
+  return makeChild({ skin: spick(SKINS), hair: spick(HAIRS), hairStyle: spick(STYLES), shirt: spick(SHIRTS), shorts: spick(SHORTS), shoe: spick([0xffffff, 0xff5c8a, 0x3fa9ff, 0x333344]), lod: 0.55 });
 }
-function addKid(k, type, update, greet = true) { kids.push({ k, type, update, greet, lastGreet: -999, waveUntil: 0, happyT: 0, lastThanks: -99, bubble: null }); return k; }
-function standKid(x, z, face, kind = 'stand') {
-  const k = newKid(); k.position.set(x, 0, z); k.rotation.y = face; scene.add(k);
+function addKid(k, type, update, greet = true, friend = false) { kids.push({ k, type, update, greet, friend, lastGreet: -999, waveUntil: 0, happyT: 0, lastThanks: -99, bubble: null }); return k; }
+function standKid(x, z, face, kind = 'stand', friend = null) {
+  const k = newKid(friend); k.position.set(x, 0, z); k.rotation.y = face; scene.add(k);
   colliders.push({ c: true, x, z, r: 0.45 });
   const ph = Math.random() * TAU;
   if (kind === 'balloon') makeBalloonBunch(k.userData.rig, -0.6, 1.5, 0, 1);
@@ -1009,7 +1041,7 @@ function standKid(x, z, face, kind = 'stand') {
     if (kind === 'balloon') u.arms[0].rotation.set(0, 0, -2.5);
     if (near) { k.rotation.y = angDamp(k.rotation.y, Math.atan2(P.pos.x - x, P.pos.z - z), 5, dt); if (kind !== 'jump' && kind !== 'cheer') kidWave(k, t); }
     else k.rotation.y = angDamp(k.rotation.y, face, 2, dt);
-  });
+  }, true, !!friend);
   return k;
 }
 function runnerKids(cx, cz, r, n, speed) {
@@ -1109,8 +1141,8 @@ for (let z = 32; z > -115; z -= 13) { if (Math.abs(z) < 17) continue; makeLamp(-
 // plaza kids
 runnerKids(0, 0, 6.2, 3, 3.2);
 ballKids(-10, 6, 5, -3);
-standKid(9, 9, -2.2, 'balloon'); standKid(-11, -6, 1.2, 'balloon'); standKid(12, -4, -1.6, 'jump');
-standKid(5.4, 22, Math.PI, 'balloon'); standKid(-5.2, -32, 1.4, 'jump'); standKid(5.5, -58, -1.4, 'stand'); standKid(-5.5, -88, 1.4, 'balloon');
+standKid(9, 9, -2.2, 'balloon', FRIENDS.asya); standKid(-11, -6, 1.2, 'balloon', FRIENDS.gulru); standKid(12, -4, -1.6, 'jump', FRIENDS.efe);
+standKid(5.4, 22, Math.PI, 'balloon', FRIENDS.zeynepada); standKid(-5.2, -32, 1.4, 'jump', FRIENDS.denizali); standKid(5.5, -58, -1.4, 'stand', FRIENDS.gun); standKid(-5.5, -88, 1.4, 'balloon');
 standKid(-22, 26, 0, 'jump'); standKid(20, -44, Math.PI, 'stand'); standKid(-32, -10, 1.5, 'balloon'); standKid(32, -62, -1.5, 'jump');
 standKid(44, 26, 0.4, 'stand'); standKid(-46, -78, 0.2, 'jump');
 
@@ -1201,7 +1233,7 @@ for (const [x, z, s] of [[-6, -15, 1], [6, -16, 1.1], [-5, -19, 0.8], [6.5, -101
 colliders.push({ x0: -4.5, x1: 4.5, z0: -20, z1: -15.6 }, { x0: -4.5, x1: 4.5, z0: -102.4, z1: -98 });
 // start pad
 const PAD = new THREE.Vector3(0, 0, -12.6);
-const padG = new THREE.Group(); padG.position.copy(PAD); scene.add(padG);
+const padG = new THREE.Group(); padG.position.copy(PAD); padG.position.y = 0.08; scene.add(padG);
 const padRing = mk(new THREE.RingGeometry(1.9, 2.5, 48), new THREE.MeshBasicMaterial({ color: 0xdddddd, transparent: true, opacity: 0.8 }), 0, 0.06, 0, padG); padRing.rotation.x = -Math.PI / 2;
 const padStar = mk(new THREE.ShapeGeometry(starShape(1.4, 0.6)), new THREE.MeshBasicMaterial({ color: 0xdddddd, transparent: true, opacity: 0.7 }), 0, 0.07, 0, padG); padStar.rotation.x = -Math.PI / 2;
 // climb numbers
@@ -1453,6 +1485,9 @@ const LN = {
   intro: ['Merhaba Feza! Gökkuşağı Şehri\'ne hoş geldin.', 'Burada rengarenk kuleler ve oyun oynayan bir sürü çocuk var.',
     'Bak, orada biri seni bekliyor. Bu Işıltı! O bir gökkuşağı unicornu.', 'Hadi, parmağınla ekrana dokun ve Işıltı\'nın yanına git!'],
   mount: 'Yaşasın! Işıltı\'ya bindin. Sıkı tutun Feza!',
+  menu: 'Merhaba! Hangi Feza ile oynamak istersin? Gökkuşağı Feza mı, yoksa sade Feza mı?',
+  pickRainbow: 'Gökkuşağı Feza! Rengarenk giyinmişsin, çok güzel!',
+  pickPlain: 'Sade Feza! Çok şık görünüyorsun!',
   jumpHint: 'Zıplamak için sarı Zıpla düğmesine basabilirsin.',
   jump: 'Hop! Işıltı çok yükseğe zıpladı!',
   goUnicorn: 'Işıltı\'nın yanına git ve ona bin!',
@@ -1485,7 +1520,7 @@ const LN = {
   slide: 'Kayıyoruz! Parmağını sağa sola kaydırarak yıldızları topla!',
   land: ['Yaşasın! Gökkuşağından kaydın!', 'Bak, çocuklar seni alkışlıyor!', 'Gökkuşağı yavaş yavaş kayboldu. Gökkuşakları kısa sürer.', 'Yeni bir gökkuşağı için yeni bir görev seni bekliyor!'],
   landStars: n => n === 1 ? 'Bir yıldız topladın!' : `Tam ${NUM[n]} yıldız topladın!`,
-  greet: [nm => `Bak, ${nm} sana el sallıyor! Sen de ona dokunarak el salla.`, nm => `${nm} sana merhaba diyor! Ona dokun ve selam ver.`, nm => `${nm} seninle tanışmak istiyor. Ona dokunup merhaba de!`],
+  greet: [nm => `Bak, ${nm} sana el sallıyor! Sen de ona dokunarak el salla.`, nm => `${nm} sana merhaba diyor! Ona dokun ve selam ver.`, nm => `Aa, arkadaşın ${nm} burada! Ona dokunup merhaba de!`],
   thanks: [nm => `${nm} çok sevindi! Arkadaşına selam verdin.`, nm => `Merhaba ${nm}! Bak, ${nm} de sana gülümsüyor.`],
 };
 function allLines() {
@@ -1495,7 +1530,7 @@ function allLines() {
   for (let c = 0; c < 7; c++) { add(LN.colAsk(c)); add(LN.colGot(c)); for (let w = 0; w < 7; w++) if (w !== c) add(LN.colWrong(c, w)); }
   for (let n = 3; n <= 7; n++) { add(LN.cntIntro(n)); add(LN.cntAsk(n)); add(LN.cntAll(n)); add(LN.cntLeft(n - 1)); }
   for (const s of SHAPES) { add(s.ask); add(s.yes); for (const w of SHAPES) if (w !== s) add(LN.shWrong(s, w)); }
-  add(FACTS); for (const nm of NAMES) [...LN.greet, ...LN.thanks].forEach(f => add(f(nm)));
+  add(FACTS); for (const nm of FRIEND_NAMES) [...LN.greet, ...LN.thanks].forEach(f => add(f(nm)));
   return [...out];
 }
 
@@ -1593,7 +1628,12 @@ function currentInstruction() {
 const keys = {}; let jumpPressed = false; let moveTarget = null; let pointerDown = false;
 addEventListener('keydown', e => {
   if (e.repeat) return;
-  if (G.mode === 'start') { if (!['Shift', 'Control', 'Alt', 'Meta', 'Tab'].includes(e.key)) { e.preventDefault(); startGame(); } return; }  // any key starts
+  if (G.mode === 'start') {   // ← → choose an outfit, Space/Enter starts
+    e.preventDefault(); menuWake();
+    if (e.code === 'ArrowLeft' || e.code === 'ArrowRight') selectCard(e.code === 'ArrowLeft' ? 0 : 1);
+    else if (e.code === 'Space' || e.code === 'Enter') startGame(cardEls[selCard].dataset.o);
+    return;
+  }
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
   keys[e.code] = true;
   if (e.code === 'Space' || e.key === ' ' || e.code === 'Enter') onAction();
@@ -1646,6 +1686,7 @@ function waveBack(kd) {
   const nm = kd.k.userData.name, wasGreeting = NOW < kd.waveUntil;
   G.fezaWaveT = NOW + 1.8; kd.happyT = NOW + 2.4; kd.waveUntil = 0; A.collect();
   sparks.burst(kd.k.userData.head.getWorldPosition(new THREE.Vector3()), null, 30, 4);
+  if (!nm) return;   // unnamed extras just smile and jump
   if (wasGreeting) { addStars(1); say(spick(LN.thanks)(nm)); }
   else if (NOW - kd.lastThanks > 10 && !N.busy()) { kd.lastThanks = NOW; say(spick(LN.thanks)(nm)); }
 }
@@ -1658,10 +1699,13 @@ fingerRing.rotation.x = -Math.PI / 2; fingerRing.visible = false;
 /* =====================================================================
    SEQUENCES
    ===================================================================== */
-async function startGame() {
+async function startGame(outfit = 'gokkusagi') {
   if (G.mode !== 'start') return;
   $('start').classList.add('hidden'); $('hud').classList.remove('hidden');
-  A.init(); N.init(); VO.unlock();
+  A.init(); N.init(); VO.unlock(); N.clear(); stopCards();
+  if (feza.userData.outfit !== outfit) { const old = feza; feza = makeFeza(outfit); feza.position.copy(old.position); feza.rotation.copy(old.rotation); scene.remove(old); scene.add(feza); }
+  feza.userData.outfit = outfit;
+  say(outfit === 'gokkusagi' ? LN.pickRainbow : LN.pickPlain);
   if (TOUCH) { const el = document.documentElement; try { (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el)?.catch?.(() => {}); } catch (e) {} }
   G.mode = 'intro';
   G.cine = { t: 0, dur: 7, p0: new THREE.Vector3(24, 42, 58), p1: new THREE.Vector3(P.pos.x + 1, 6.5, P.pos.z + 10), l0: new THREE.Vector3(0, 8, -40), l1: new THREE.Vector3(P.pos.x - 1, 1.3, P.pos.z - 2) };
@@ -1857,7 +1901,7 @@ function update(dt) {
       const u = kd.k.userData; if (['stand', 'balloon', 'ball', 'jump'].includes(kd.type)) u.rig.position.y = Math.abs(Math.sin((kd.happyT - NOW) * 9)) * 0.45;
       kidCheer(kd.k, NOW); if (Math.random() < dt * 5) { const h = u.head.getWorldPosition(_hw); hearts.emit(h.x + rr(-0.3, 0.3), h.y + 0.6, h.z, rr(-0.4, 0.4), 1.4, rr(-0.4, 0.4), 0xffffff, 1.5); }
     }
-    if (kd.greet && free && !greeting && dist2(wp, P.pos) < 7 && NOW - G.lastGreet > 20 && NOW - kd.lastGreet > 60 && !N.busy() && G.mode === 'ride') {
+    if (kd.friend && free && !greeting && dist2(wp, P.pos) < 7 && NOW - G.lastGreet > 20 && NOW - kd.lastGreet > 60 && !N.busy() && G.mode === 'ride') {
       G.lastGreet = kd.lastGreet = NOW; kd.waveUntil = NOW + 12; say(spick(LN.greet)(kd.k.userData.name), { ifIdle: true });
     }
     if (greeting || kd.bubble?.visible) {   // 👋 bubble = "tap me"
@@ -1874,7 +1918,7 @@ function update(dt) {
   for (const c of climbNums) if (c.pop > 0) { c.pop += dt; const s = 2 + c.pop * 3; c.s.scale.set(s, s, 1); c.s.material.opacity = Math.max(0, 1 - c.pop * 1.5); if (c.pop > 0.7) c.s.visible = false; }
   if (Math.random() < 0.9) for (let i = 0; i < 3; i++) { const a = Math.random() * TAU; water.emit(Math.cos(a) * 0.15, 3.0, Math.sin(a) * 0.15, Math.cos(a) * rr(0.8, 1.6), rr(3, 4.5), Math.sin(a) * rr(0.8, 1.6), 0xbfe8ff, 0.9); }
   rainbow.update(dt); updateTargets(dt); sparks.update(dt); hearts.update(dt); water.update(dt); updateConfetti(dt);
-  ghost.material.opacity = G.rainbowReady ? 0.08 : 0.22 + Math.sin(NOW * 2) * 0.05;
+  ghost.material.opacity = G.rainbowReady ? 0.08 : 0.22 + Math.sin(NOW * 2) * 0.05; ghost.visible = rainbow.prog.some(p => p < 0.999);
 }
 function placeOnRainbow() {
   rbP(P.u, _v); rbN(P.u, _n);
@@ -1893,6 +1937,8 @@ function riderPose(slide) {
 
 /* ---------------- Camera ---------------- */
 const camPos = new THREE.Vector3(30, 30, 50), camLook = new THREE.Vector3(0, 2, 0);
+const SUN_OFF = new THREE.Vector3(30, 55, 22), _sf = new THREE.Vector3();
+const SUN_Q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(SUN_OFF, new THREE.Vector3(), new THREE.Vector3(0, 1, 0))), SUN_QI = SUN_Q.clone().invert();
 const _cp = new THREE.Vector3(), _cl = new THREE.Vector3();
 function updateCamera(dt) {
   let k = 4;
@@ -1911,7 +1957,10 @@ function updateCamera(dt) {
   if (window.__cam) { camera.position.set(...window.__cam.p); camera.lookAt(...window.__cam.l); }
   sky.position.copy(camPos);
   const f = (G.mode === 'climb' || G.mode === 'top' || G.mode === 'slide') ? unicorn.position : camLook;
-  sun.target.position.copy(f); sun.position.set(f.x + 30, f.y + 55, f.z + 22);
+  // snap the shadow camera to whole shadow-map texels (in light space) → no shimmering shadow edges while moving
+  _sf.copy(f).applyQuaternion(SUN_QI); const tx = (sun.shadow.camera.right - sun.shadow.camera.left) / sun.shadow.mapSize.x;
+  _sf.x = Math.round(_sf.x / tx) * tx; _sf.y = Math.round(_sf.y / tx) * tx; _sf.z = Math.round(_sf.z / tx) * tx; _sf.applyQuaternion(SUN_Q);
+  sun.target.position.copy(_sf); sun.position.copy(_sf).add(SUN_OFF);
 }
 const _ray = new THREE.Ray(), _hit = new THREE.Vector3(), _head = new THREE.Vector3();
 function updateFade(dt) {
@@ -1932,7 +1981,7 @@ if (showFps) { const d = document.createElement('div'); d.id = 'fps'; document.b
 function frame() {
   const dt = Math.min(clock.getDelta(), 0.05);
   update(dt); updateCamera(dt); updateFade(dt);
-  mmDraw();
+  mmDraw(); if (G.mode === 'start') renderCards();
   // adaptive quality: if the device struggles (older iPads), lower the resolution
   if (G.mode !== 'start') { qT += dt; qN++; if (qT > 3) { const fps = qN / qT; qT = 0; qN = 0;
     if (fps < 42 && pixelRatio > 0.9) { pixelRatio = Math.max(0.85, pixelRatio - 0.25); renderer.setPixelRatio(pixelRatio); renderer.setSize(innerWidth, innerHeight); } } }
@@ -1941,7 +1990,36 @@ function frame() {
   requestAnimationFrame(frame);
 }
 frame();
-$('btnStart').addEventListener('click', startGame);
+/* ---------- start screen: two Feza cards (rendered live in 3D), music from the first touch ---------- */
+var cardEls = [...document.querySelectorAll('.fcard')], selCard = 0, cardsOn, menuAwake = false;   // var: the render loop may call renderCards() before this runs
+function selectCard(i) { selCard = i; cardEls.forEach((c, k) => c.classList.toggle('sel', k === i)); }
+cardEls.forEach((c, i) => { c.addEventListener('pointerenter', () => selectCard(i)); c.addEventListener('click', e => { e.stopPropagation(); menuWake(); startGame(c.dataset.o); }); });
+function menuWake() {   // browsers only allow sound after the first touch/click
+  if (menuAwake) return; menuAwake = true; A.init(); N.init(); VO.unlock(); $('musicHint').classList.add('hidden');
+  setTimeout(() => { if (G.mode === 'start') say(LN.menu); }, 150);
+}
+$('start').addEventListener('pointerdown', menuWake);
+const cardR = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+cardR.setPixelRatio(Math.min(devicePixelRatio, 2)); cardR.setSize(250, 300); cardR.setClearColor(0x000000, 0);
+const cardScene = new THREE.Scene(); cardScene.add(new THREE.HemisphereLight(0xffffff, 0xffd6ea, 1.5));
+{ const dl = new THREE.DirectionalLight(0xfff0dc, 2.2); dl.position.set(2, 4, 5); cardScene.add(dl); }
+const cardCam = new THREE.PerspectiveCamera(30, 250 / 300, 0.1, 50); cardCam.position.set(0, 1.25, 5.2); cardCam.lookAt(0, 1.05, 0);
+const cardFeza = cardEls.map(c => { const f = makeFeza(c.dataset.o); cardScene.add(f); return f; });
+cardsOn = !/ikon/.test(location.search);
+function renderCards() {
+  if (!cardsOn) return;
+  cardFeza.forEach((f, i) => {
+    cardFeza.forEach(o => o.visible = o === f);
+    kidPoseReset(f); kidBlink(f, 1 / 60); f.rotation.y = Math.sin(NOW * 0.8 + i * 2) * 0.45;
+    f.userData.rig.position.y = Math.abs(Math.sin(NOW * 2.4 + i * 1.6)) * 0.12; if (i === selCard) kidWave(f, NOW); else kidCheer(f, NOW * 0.6);
+    cardR.render(cardScene, cardCam);
+    const cv = cardEls[i].querySelector('canvas'), w = cv.clientWidth, h = cv.clientHeight, d = Math.min(devicePixelRatio, 2);
+    if (cv.width !== Math.round(w * d)) { cv.width = Math.round(w * d); cv.height = Math.round(h * d); }
+    const g = cv.getContext('2d'); g.clearRect(0, 0, cv.width, cv.height); g.drawImage(cardR.domElement, 0, 0, cv.width, cv.height);
+  });
+}
+function stopCards() { cardsOn = false; cardR.dispose(); cardR.forceContextLoss?.(); }
+A.init();   // may start silent (autoplay rules); the first touch resumes it
 ['gesturestart', 'gesturechange', 'dblclick', 'contextmenu'].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
 document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 // ?ikon → poses Feza on Işıltı in front of the rainbow, used to render the app icon
@@ -1960,7 +2038,7 @@ if ('serviceWorker' in navigator && /^https?:/.test(location.protocol) && !/ikon
   navigator.serviceWorker.register('sw.js').then(reg => navigator.serviceWorker.ready).then(reg => reg.active && reg.active.postMessage('sync')).catch(() => {});
 }
 window.__saveLines = () => fetch('/save-lines', { method: 'POST', body: JSON.stringify(allLines()) }).then(r => r.text());
-window.__game = { A, N, VO, G, P, kids, camera, scene, renderer, pickKid, MM, toMM, startClimb, nextRound, rainbow, targets, say, now: () => NOW, step: (n = 60) => { for (let i = 0; i < n; i++) { update(1 / 60); updateCamera(1 / 60); updateFade(1 / 60); } renderer.render(scene, camera); mmDraw(); } };
+window.__game = { get feza() { return feza; }, A, N, VO, G, P, kids, camera, scene, renderer, pickKid, MM, toMM, startClimb, nextRound, rainbow, targets, say, now: () => NOW, step: (n = 60) => { for (let i = 0; i < n; i++) { update(1 / 60); updateCamera(1 / 60); updateFade(1 / 60); } renderer.render(scene, camera); mmDraw(); } };
 </script>
 </body>
 </html>
