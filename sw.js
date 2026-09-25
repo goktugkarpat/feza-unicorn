@@ -1,5 +1,5 @@
 // Offline support: after the first visit the whole game (code, 3D library, all voice clips) is stored on the device.
-const CACHE = 'feza-unicorn-v7';
+const CACHE = 'feza-unicorn-v8';
 const CORE = ['./', './index.html', './vendor/three.js', './voice/manifest.js', './voice/manifest.json',
   './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 const FRESH = /(\/|index\.html|manifest\.js|manifest\.json|manifest\.webmanifest)$/;   // always try the network first for these
@@ -16,7 +16,7 @@ self.addEventListener('install', e => e.waitUntil((async () => {
   await (await caches.open(CACHE)).addAll(CORE); await syncVoices(); self.skipWaiting();
 })()));
 self.addEventListener('activate', e => e.waitUntil((async () => {
-  for (const k of await caches.keys()) if (k !== CACHE) await caches.delete(k);
+  for (const k of await caches.keys()) if (k.startsWith('feza-unicorn-') && k !== CACHE) await caches.delete(k);   // only this game's old versions (other Feza games share the site)
   await self.clients.claim();
 })()));
 self.addEventListener('message', e => { if (e.data === 'sync') e.waitUntil(syncVoices()); });
