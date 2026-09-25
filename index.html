@@ -545,10 +545,8 @@ let NOW = 0;
 
 function registerFade(group) {
   group.updateMatrixWorld(true);
-  const box = new THREE.Box3().setFromObject(group); const mats = new Set();
-  const shared = new Set(mcache.values());   // never fade cached materials (kids share them)
-  group.traverse(o => { if (o.material) [o.material].flat().forEach(m => { if (!shared.has(m)) mats.add(m); }); });
-  fadeables.push({ box, mats: [...mats], op: 1, tall: box.max.y > 5, cyl: group.userData.cyl });   // tall ones block the camera
+  const box = new THREE.Box3().setFromObject(group);
+  fadeables.push({ g: group, box, tall: box.max.y > 5, cyl: group.userData.cyl });   // tall ones block the camera
 }
 function collide(p, rad) {
   for (const c of colliders) {
@@ -765,6 +763,15 @@ function makeUnicorn() {
 }
 function starShape(R, r, n = 5) { const s = new THREE.Shape(); for (let i = 0; i < n * 2; i++) { const a = i / (n * 2) * TAU + Math.PI / 2, d = i % 2 ? r : R; i ? s.lineTo(Math.cos(a) * d, Math.sin(a) * d) : s.moveTo(Math.cos(a) * d, Math.sin(a) * d); } s.closePath(); return s; }
 const unicorn = makeUnicorn(); scene.add(unicorn);
+// "x-ray": a glowing copy of Feza and Işıltı that is only drawn where they are hidden behind something
+const XRAY_MAT = new THREE.MeshBasicMaterial({ color: 0xff7ad0, transparent: true, opacity: 0.55, depthFunc: THREE.GreaterDepth, depthWrite: false, fog: false });
+let xrayOn = false; const xrayMeshes = [];
+function addXray(root) {
+  const list = []; root.traverse(o => { if (o.isMesh && !o.userData.xray) list.push(o); });
+  for (const o of list) { const x = new THREE.Mesh(o.geometry, XRAY_MAT); x.userData.xray = true; x.renderOrder = 50; x.visible = xrayOn; o.add(x); xrayMeshes.push(x); }
+}
+function setXray(on) { if (on === xrayOn) return; xrayOn = on; for (const x of xrayMeshes) x.visible = on; }
+addXray(unicorn); addXray(feza);
 
 function animUnicorn(dt, speed, pose) {
   const u = unicorn.userData;
@@ -1702,7 +1709,7 @@ async function startGame(outfit = 'gokkusagi') {
   if (G.mode !== 'start') return;
   $('start').classList.add('hidden'); $('hud').classList.remove('hidden');
   A.init(); N.init(); VO.unlock(); N.clear(); stopCards();
-  if (feza.userData.outfit !== outfit) { const old = feza; feza = makeFeza(outfit); feza.position.copy(old.position); feza.rotation.copy(old.rotation); scene.remove(old); scene.add(feza); }
+  if (feza.userData.outfit !== outfit) { const old = feza; feza = makeFeza(outfit); feza.position.copy(old.position); feza.rotation.copy(old.rotation); scene.remove(old); scene.add(feza); addXray(feza); }
   feza.userData.outfit = outfit;
   say(outfit === 'gokkusagi' ? LN.pickRainbow : LN.pickPlain);
   if (TOUCH) { const el = document.documentElement; try { (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el)?.catch?.(() => {}); } catch (e) {} }
@@ -1954,15 +1961,12 @@ function updateCamera(dt) {
   camLook.x = damp(camLook.x, _cl.x, k * 1.4, dt); camLook.y = damp(camLook.y, _cl.y, k * 1.4, dt); camLook.z = damp(camLook.z, _cl.z, k * 1.4, dt);
   camera.position.copy(camPos);
   if (['ride', 'onfoot', 'mounting', 'land'].includes(G.mode)) {
-    // Never let a building come between Feza and the camera: try the normal view, then higher views, take the freest one.
-    _head.set(P.pos.x, P.y + 1.6, P.pos.z); _cd.copy(camPos).sub(_head); const L = _cd.length(); _cd.divideScalar(L);
-    let best = _cd, bestT = camFree(_head, _cd, L);
-    if (bestT < L - 0.01) for (const c of CAM_UP) { const t = camFree(_head, c, L); if (t > bestT + 0.5) { best = c; bestT = t; } if (t >= L - 0.01) break; }
-    if (!camDirInit) { camDir.copy(best); camDirInit = true; } else camDir.lerp(best, 1 - Math.exp(-5 * dt)).normalize();
-    const want = Math.max(2.5, camFree(_head, camDir, L) - 0.5);
-    camDist = want < camDist ? want : damp(camDist, want, 1.5, dt);   // pull in instantly, ease back out
-    camera.position.copy(_head).addScaledVector(camDir, Math.min(camDist, L));
-  } else { camDist = 99; camDirInit = false; }
+    // The camera never moves for buildings. If one is between Feza and the camera, Feza shows through it as a glowing silhouette;
+    // a building the camera itself is inside is simply not drawn (it would fill the whole screen anyway).
+    _head.set(P.pos.x, P.y + 1.4, P.pos.z); _cd.copy(camPos).sub(_head); const L = _cd.length(); _cd.divideScalar(L);
+    setXray(camFree(_head, _cd, L - 0.5) < L - 0.6);
+    for (const f of fadeables) { if (!f.tall) continue; const d = camInside(f, camPos); f.g.visible = f.g.visible ? d > 1.2 : d > 2.2; }
+  } else { setXray(false); for (const f of fadeables) f.g.visible = true; }
   camera.lookAt(camLook);
   if (window.__cam) { camera.position.set(...window.__cam.p); camera.lookAt(...window.__cam.l); }
   sky.position.copy(camPos);
@@ -1973,8 +1977,10 @@ function updateCamera(dt) {
   sun.target.position.copy(_sf); sun.position.copy(_sf).add(SUN_OFF);
 }
 const _ray = new THREE.Ray(), _hit = new THREE.Vector3(), _head = new THREE.Vector3(), _cd = new THREE.Vector3(), _pb = new THREE.Box3();
-let camDist = 99, camDirInit = false; const camDir = new THREE.Vector3();
-const CAM_UP = [new THREE.Vector3(0, 1, 0.45).normalize(), new THREE.Vector3(0, 1, 0.12).normalize()];   // fallback views from above
+function camInside(f, c) {   // >0: how far the camera is outside this building; ≤0: inside
+  if (f.cyl) { if (c.y > f.cyl.h) return c.y - f.cyl.h; return Math.hypot(c.x - f.cyl.x, c.z - f.cyl.z) - (f.cyl.r - 0.4); }
+  return Math.sqrt(f.box.distanceToPoint(c) ** 2) - (f.box.containsPoint(c) ? 1 : 0);
+}
 function camFree(o, d, L) {   // how far the camera can go from Feza's head along d before touching a tall building
   let tMin = L;
   for (const f of fadeables) {
@@ -2053,7 +2059,7 @@ if ('serviceWorker' in navigator && /^https?:/.test(location.protocol) && !/ikon
   navigator.serviceWorker.register('sw.js').then(reg => navigator.serviceWorker.ready).then(reg => reg.active && reg.active.postMessage('sync')).catch(() => {});
 }
 window.__saveLines = () => fetch('/save-lines', { method: 'POST', body: JSON.stringify(allLines()) }).then(r => r.text());
-window.__game = { get feza() { return feza; }, get camDist() { return camDist; }, fadeables, MAP_ITEMS, A, N, VO, G, P, kids, camera, scene, renderer, pickKid, MM, toMM, startClimb, nextRound, rainbow, targets, say, now: () => NOW, step: (n = 60) => { for (let i = 0; i < n; i++) { update(1 / 60); updateCamera(1 / 60); } renderer.render(scene, camera); mmDraw(); } };
+window.__game = { get feza() { return feza; }, get xrayOn() { return xrayOn; }, fadeables, MAP_ITEMS, A, N, VO, G, P, kids, camera, scene, renderer, pickKid, MM, toMM, startClimb, nextRound, rainbow, targets, say, now: () => NOW, step: (n = 60) => { for (let i = 0; i < n; i++) { update(1 / 60); updateCamera(1 / 60); } renderer.render(scene, camera); mmDraw(); } };
 </script>
 </body>
 </html>

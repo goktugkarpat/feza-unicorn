@@ -1,5 +1,5 @@
 // Offline support: after the first visit the whole game (code, 3D library, all voice clips) is stored on the device.
-const CACHE = 'feza-unicorn-v5';
+const CACHE = 'feza-unicorn-v6';
 const CORE = ['./', './index.html', './vendor/three.js', './voice/manifest.js', './voice/manifest.json',
   './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 const FRESH = /(\/|index\.html|manifest\.js|manifest\.json|manifest\.webmanifest)$/;   // always try the network first for these
