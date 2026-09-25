@@ -14,8 +14,7 @@ Feza, gökkuşağı unicornu Işıltı'ya biniyor, rengarenk şehirde görevleri
 
 - Parmağını ekrana koy ve gezdir: Feza parmağın gittiği yere koşar (bilgisayarda fareyle tıklayıp sürükle ya da ok tuşları).
 - Sarı **Zıpla** düğmesi (klavyede Boşluk) zıplatır.
-- Sol alttaki **mini haritada** aranan şeyler (renkli yıldızlar, elmalar, şekilli balonlar) görünür; sıradaki hedefin etrafında sarı bir halka yanıp söner.
-  Haritada bir yere ya da bir şeye dokununca Işıltı sokakları takip ederek oraya kendisi gider; gideceği yol noktalı çizgiyle çizilir.
+- Sol alttaki **mini haritada** aranan şeyler (renkli yıldızlar, elmalar, şekilli balonlar) görünür; sıradaki hedefin etrafında sarı bir halka yanıp söner. Harita sadece yol gösterir, oraya Feza kendisi gider.
 - Kayarken parmağını sağa sola kaydırarak yıldızları topla.
 - Bir çocuğun başında 👋 çıkınca ona dokun: Feza el sallar, çocuk sevinir, bir yıldız kazanırsın.
 - 🔊 düğmesi son görevi tekrar okur, 🎵 müziği açar/kapatır.
