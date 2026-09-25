@@ -782,7 +782,7 @@ function animUnicorn(dt, speed, pose) {
   u.hornGlow.material.opacity = 0.6 + Math.sin(NOW * 4) * 0.3;
   if (pose === 'slide') {
     L.forEach((l, i) => { l.top.rotation.x = damp(l.top.rotation.x, i < 2 ? -1.25 : -0.75, 10, dt); l.knee.rotation.x = damp(l.knee.rotation.x, 0, 10, dt); });
-    u.rig.position.y = damp(u.rig.position.y, -0.35, 8, dt); u.head.rotation.x = damp(u.head.rotation.x, -0.15, 6, dt);
+    u.rig.position.y = damp(u.rig.position.y, -0.05, 8, dt); u.head.rotation.x = damp(u.head.rotation.x, -0.15, 6, dt);
     return;
   }
   if (pose === 'air') {
@@ -921,7 +921,7 @@ function makeHotAir(i) {
   mk(new THREE.BoxGeometry(1.4, 1.1, 1.4), M(0xb07a45), 0, -7.6, 0, g, true);
   mk(new THREE.TorusGeometry(0.72, 0.1, 6, 4), M(0x8a5a2b), 0, -7.05, 0, g).rotation.set(Math.PI / 2, 0, Math.PI / 4);
   for (const [x, z] of [[0.6, 0.6], [-0.6, 0.6], [0.6, -0.6], [-0.6, -0.6]]) { const r = mk(geo('har', () => new THREE.CylinderGeometry(0.03, 0.03, 1.8, 4)), MC(0x6b4a33), x * 1.2, -6.2, z * 1.2, g); r.rotation.set(-z * 0.25, 0, x * 0.25); }
-  hotAir.push({ g, a: i * 2.1, r: 55 + i * 18, h: 30 + i * 7, sp: 0.02 + i * 0.006 });
+  hotAir.push({ g, a: i * 2.1, r: 100 + i * 16, h: 32 + i * 7, sp: 0.015 + i * 0.004 });
 }
 for (let i = 0; i < 3; i++) makeHotAir(i);
 
@@ -1112,13 +1112,14 @@ function makeCarousel(x, z) {
 const XB = [[-60, -36.5], [-27.5, -9.5], [9.5, 27.5], [36.5, 60]];
 const ZB = [[30.5, 36], [-39.5, 21.5], [-73.5, -48.5], [-117, -82.5]];
 const cells = [];
+const PARK_SPOTS = [[-22, -111], [22, -111], [21, -88]];   // playgrounds in the landing park (outside the spiral)
 for (const [x0, x1] of XB) for (const [z0, z1] of ZB) {
   const nx = Math.max(1, Math.round((x1 - x0) / 9.5)), nz = Math.max(1, Math.round((z1 - z0) / 9.5));
   for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) {
     const cx = x0 + (i + 0.5) * (x1 - x0) / nx, cz = z0 + (j + 0.5) * (z1 - z0) / nz;
     const thin = (z1 - z0) < 8;
     if (Math.hypot(cx, cz) < 21) { if (!thin) cells.push({ cx, cz, type: 'tree' }); continue; }
-    if (Math.abs(cx) < 30 && cz < -96) { cells.push({ cx, cz, type: 'park' }); continue; }
+    if (Math.abs(cx) < 30 && cz < -82) { cells.push({ cx, cz, type: 'park' }); continue; }   // landing park under the rainbow spiral
     cells.push({ cx, cz, type: thin ? 'tree' : null, near: Math.abs(cx) < 20 });
   }
 }
@@ -1134,13 +1135,13 @@ for (const c of cells) {
   else if (c.type === 'seesaw') makeSeesaw(cx, cz, srnd() * 3);
   else if (c.type === 'carousel') makeCarousel(cx, cz);
   else if (c.type === 'ball') { ballKids(cx - 2, cz - 1, 4, 2); makeTree(cx + 3, cz + 3, 0.9); }
-  else if (c.type === 'park') { makeTree(cx + sr(-3, 3), cz + sr(-3, 3), sr(0.9, 1.2)); }
+  else if (c.type === 'park') { const tx = cx + sr(-3, 3), tz = cz + sr(-3, 3); if (!(Math.abs(tx) < 11 && tz < -98) && PARK_SPOTS.every(([px, pz]) => Math.hypot(tx - px, tz - pz) > 5)) makeTree(tx, tz, sr(0.9, 1.2)); }
 }
 // landing park playground
-makeSwing(-18, -108, Math.PI / 2); makeCarousel(18, -107); makeSeesaw(-17, -92, 0.3);
-for (const [x, z] of [[-9, -112], [9, -113], [-10, -104], [10, -102]]) standKid(x, z, Math.atan2(-x, -108 - z), 'cheer');
+makeSwing(-22, -111, Math.PI / 2); makeCarousel(22, -111); makeSeesaw(21, -88, 0.3);
+for (const [x, z] of [[-9, -113], [9, -114], [-10, -105], [10, -104]]) standKid(x, z, Math.atan2(-x, -112 - z), 'cheer');   // cheer at the landing
 // lamps & balloons along avenue
-balloonArch(0, -9.2, 7.6, 5.6); balloonArch(0, 16.6, 11, 6.5);
+balloonArch(0, 31.3, 11, 6.2); balloonArch(0, 16.6, 11, 6.5);
 for (let i = 0; i < 14; i++) { const an = i / 14 * TAU; if (Math.abs(Math.sin(an)) > 0.93 || Math.sin(an) > 0.2) continue; /* north side only: the camera sits south of Feza */ balloonBunch(Math.cos(an) * 15.6, 0.3, Math.sin(an) * 15.6, 3, 1.8); }
 for (let i = 0; i < 45; i++) { const b = addBalloon(0, 0, 0, null, { free: true }); freeBalloon(b); b.ay = sr(0, 70); }
 for (let z = 32; z > -115; z -= 13) { if (Math.abs(z) < 17) continue; makeLamp(-7.8, z); makeLamp(7.8, z); }
@@ -1181,48 +1182,77 @@ for (let i = 0; i < 16; i++) { const c = makeCloud(sr(-160, 160), sr(38, 70), sr
 /* =====================================================================
    RAINBOW SLIDE
    ===================================================================== */
-const RB = { z0: -16, L: 86, H: 26, W: 8.4, N: 160, TH: 0.7 };
+const RB = { W: 8.4, TH: 0.7, N: 900, len: 1, uTop: 0.3 };
 const LANEW = RB.W / 7;
-const rbP = (u, o = new THREE.Vector3()) => o.set(0, RB.H * Math.sin(Math.PI * u), RB.z0 - RB.L * u);
-const rbN = (u, o = new THREE.Vector3()) => o.set(0, RB.L, RB.H * Math.PI * Math.cos(Math.PI * u)).normalize();
-const rbSpeedLen = u => Math.hypot(RB.L, RB.H * Math.PI * Math.cos(Math.PI * u));
+const ARCH = { z0: 30, z1: -110, H: 46 };   // one huge real-rainbow arch over the whole city, along the avenue
+{ // build the path and a frame (tangent T, surface normal N, sideways S) at N+1 evenly spaced points
+  const pts = [];
+  for (let i = 0; i <= 80; i++) { const t = i / 80; pts.push(new THREE.Vector3(0, ARCH.H * Math.sin(Math.PI * t), lerp(ARCH.z0, ARCH.z1, t))); }
+  const curve = new THREE.CatmullRomCurve3(pts, false, 'centripetal');
+  RB.len = curve.getLength();
+  const n = RB.N + 1; RB.P = new Float32Array(n * 3); RB.T = new Float32Array(n * 3); RB.Nn = new Float32Array(n * 3); RB.S = new Float32Array(n * 3);
+  const up = new THREE.Vector3(0, 1, 0), P = new THREE.Vector3(), T = new THREE.Vector3(), S = new THREE.Vector3(), Nv = new THREE.Vector3();
+  const Ts = []; for (let i = 0; i < n; i++) Ts.push(curve.getTangentAt(i / RB.N).normalize());
+  let top = 0, topY = -1, bank = 0;
+  for (let i = 0; i < n; i++) {
+    curve.getPointAt(i / RB.N, P); T.copy(Ts[i]); S.crossVectors(T, up).normalize(); Nv.crossVectors(S, T).normalize();
+    // bank into the curves (outer edge higher) – feels like a real slide
+    const a = Ts[Math.max(0, i - 3)], b = Ts[Math.min(n - 1, i + 3)], ds = (Math.min(n - 1, i + 3) - Math.max(0, i - 3)) * RB.len / RB.N;
+    const turn = new THREE.Vector3().subVectors(b, a).dot(S) / ds; bank = lerp(bank, clamp(turn * 4.5, -0.42, 0.42), 0.15);   // (0 on a straight arch)
+    const cb = Math.cos(bank), sb = Math.sin(bank); const S2 = S.clone().multiplyScalar(cb).addScaledVector(Nv, -sb), N2 = Nv.clone().multiplyScalar(cb).addScaledVector(S, sb);
+    P.toArray(RB.P, i * 3); T.toArray(RB.T, i * 3); N2.toArray(RB.Nn, i * 3); S2.toArray(RB.S, i * 3);
+    if (P.y > topY) { topY = P.y; top = i; }
+  }
+  RB.uTop = top / RB.N;
+}
+function rbGet(arr, u, o) { const f = clamp(u, 0, 1) * RB.N, i = Math.min(RB.N - 1, Math.floor(f)), t = f - i;
+  return o.set(lerp(arr[i * 3], arr[i * 3 + 3], t), lerp(arr[i * 3 + 1], arr[i * 3 + 4], t), lerp(arr[i * 3 + 2], arr[i * 3 + 5], t)); }
+const rbP = (u, o = new THREE.Vector3()) => rbGet(RB.P, u, o);
+const rbN = (u, o = new THREE.Vector3()) => rbGet(RB.Nn, u, o).normalize();
+const rbS = (u, o = new THREE.Vector3()) => rbGet(RB.S, u, o).normalize();
+const rbT = (u, o = new THREE.Vector3()) => rbGet(RB.T, u, o).normalize();
+const rbU = metres => metres / RB.len;   // distance along the rainbow → u
 function buildRibbon(xa, xb, th) {
   const N = RB.N, pos = [], nor = [], idx = [];
-  const P = new THREE.Vector3(), n = new THREE.Vector3();
+  const P = new THREE.Vector3(), n = new THREE.Vector3(), sd = new THREE.Vector3(), a = new THREE.Vector3();
   const strips = [[], [], [], []];
+  const at = (x, h) => a.copy(P).addScaledVector(sd, x).addScaledVector(n, h).toArray();
   for (let i = 0; i <= N; i++) {
-    const u = i / N; rbP(u, P); rbN(u, n);
-    const T = P.clone().addScaledVector(n, th / 2), B = P.clone().addScaledVector(n, -th / 2);
-    strips[0].push([[xa, T.y, T.z], [xb, T.y, T.z], [n.x, n.y, n.z]]);
-    strips[1].push([[xa, B.y, B.z], [xb, B.y, B.z], [-n.x, -n.y, -n.z]]);
-    strips[2].push([[xb, T.y, T.z], [xb, B.y, B.z], [1, 0, 0]]);
-    strips[3].push([[xa, T.y, T.z], [xa, B.y, B.z], [-1, 0, 0]]);
+    const u = i / N; rbP(u, P); rbN(u, n); rbS(u, sd);
+    strips[0].push([at(xa, th / 2), at(xb, th / 2), n.toArray()]);
+    strips[1].push([at(xa, -th / 2), at(xb, -th / 2), n.clone().negate().toArray()]);
+    strips[2].push([at(xb, th / 2), at(xb, -th / 2), sd.toArray()]);
+    strips[3].push([at(xa, th / 2), at(xa, -th / 2), sd.clone().negate().toArray()]);
   }
   const base = [];
   strips.forEach((s, si) => { base[si] = pos.length / 3; s.forEach(([a, b, nn]) => { pos.push(...a, ...b); nor.push(...nn, ...nn); }); });
   for (let i = 0; i < N; i++) {
-    const t0 = base[0] + i * 2; idx.push(t0, t0 + 1, t0 + 3, t0, t0 + 3, t0 + 2);           // top  (L_i,R_i,R_i+1),(L_i,R_i+1,L_i+1)
+    const t0 = base[0] + i * 2; idx.push(t0, t0 + 1, t0 + 3, t0, t0 + 3, t0 + 2);           // top
     const b0 = base[1] + i * 2; idx.push(b0, b0 + 3, b0 + 1, b0, b0 + 2, b0 + 3);           // bottom
-    const r0 = base[2] + i * 2; idx.push(r0, r0 + 1, r0 + 3, r0, r0 + 3, r0 + 2);           // right (T_i,B_i,B_i+1),(T_i,B_i+1,T_i+1)
-    const l0 = base[3] + i * 2; idx.push(l0, l0 + 3, l0 + 1, l0, l0 + 2, l0 + 3);           // left
+    const r0 = base[2] + i * 2; idx.push(r0, r0 + 1, r0 + 3, r0, r0 + 3, r0 + 2);           // right side
+    const l0 = base[3] + i * 2; idx.push(l0, l0 + 3, l0 + 1, l0, l0 + 2, l0 + 3);           // left side
   }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); g.setIndex(idx); return g;
+  g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); g.setIndex(idx); g.computeBoundingSphere(); return g;
 }
+const _up0 = new THREE.Vector3(0, 1, 0);
 const rainbow = { lanes: [], prog: [0, 0, 0, 0, 0, 0, 0], tgt: [0, 0, 0, 0, 0, 0, 0] };
 for (let k = 0; k < 7; k++) {
   const xa = -RB.W / 2 + k * LANEW, m = M(RAINBOW[k], { emissive: RAINBOW[k], emissiveIntensity: 0.28 });
-  const mesh = new THREE.Mesh(buildRibbon(xa, xa + LANEW, RB.TH), m); mesh.castShadow = true; mesh.receiveShadow = true; mesh.visible = false; scene.add(mesh);
+  const mesh = new THREE.Mesh(buildRibbon(xa, xa + LANEW, RB.TH), m); mesh.receiveShadow = true; mesh.visible = false; scene.add(mesh);   // real rainbows cast no shadow
   rainbow.lanes.push(mesh);
 }
 const ghost = new THREE.Mesh(buildRibbon(-RB.W / 2 - 0.02, RB.W / 2 + 0.02, RB.TH - 0.05), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.22, depthWrite: false }));
 scene.add(ghost);
-{ const rm = M(0xffffff, { emissive: 0xffe6f5, emissiveIntensity: 0.4 });
-  for (const s of [-1, 1]) { const pts = []; const P = new THREE.Vector3(), n = new THREE.Vector3();
-    for (let i = 0; i <= 80; i++) { const u = i / 80; rbP(u, P); rbN(u, n); pts.push(new THREE.Vector3(s * (RB.W / 2 + 0.12), P.y + n.y * 0.95, P.z + n.z * 0.95)); }
-    const rail = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 200, 0.14, 8), rm); rail.castShadow = true; scene.add(rail);
-    for (let i = 2; i < 80; i += 4) { const u = i / 80; rbP(u, P); rbN(u, n); const post = mk(geo('post', () => new THREE.CylinderGeometry(0.06, 0.06, 0.7, 6)), rm, s * (RB.W / 2 + 0.12), P.y + n.y * 0.6, P.z + n.z * 0.6, scene);
-      post.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), n); } } }
+{ const rm = M(0xffffff, { emissive: 0xffe6f5, emissiveIntensity: 0.4 }), P = new THREE.Vector3(), n = new THREE.Vector3(), sd = new THREE.Vector3();
+  const NR = 360, postGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.7, 6);
+  for (const s of [-1, 1]) { const pts = [];
+    for (let i = 0; i <= NR; i++) { const u = i / NR; rbP(u, P); rbN(u, n); rbS(u, sd); pts.push(P.clone().addScaledVector(sd, s * (RB.W / 2 + 0.12)).addScaledVector(n, 0.95)); }
+    const rail = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), NR * 3, 0.14, 8), rm); scene.add(rail);
+    const np = Math.floor(RB.len / 6), posts = new THREE.InstancedMesh(postGeo, rm, np), m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), one = new THREE.Vector3(1, 1, 1);
+    for (let k = 0; k < np; k++) { const u = (k + 0.5) / np; rbP(u, P); rbN(u, n); rbS(u, sd); P.addScaledVector(sd, s * (RB.W / 2 + 0.12)).addScaledVector(n, 0.6);
+      q.setFromUnitVectors(_up0, n); m4.compose(P, q, one); posts.setMatrixAt(k, m4); }
+    posts.computeBoundingSphere(); scene.add(posts); } }
 rainbow.reveal = k => rainbow.tgt[k] = 1;
 rainbow.setAll = v => rainbow.tgt.fill(v);
 rainbow.update = dt => {
@@ -1234,11 +1264,11 @@ rainbow.update = dt => {
   }
 };
 // cloud puffs at both feet
-for (const [x, z, s] of [[-6, -15, 1], [6, -16, 1.1], [-5, -19, 0.8], [6.5, -101, 1.2], [-6.5, -100, 1], [0, -116, 1.6], [-5, -114, 1.1], [5, -115, 1.2]]) {
+for (const [x, z, s] of [[-6.5, 30, 1], [6.5, 29, 1.1], [-6, 26.5, 0.8], [6.5, -105.5, 0.9], [-6.5, -105, 0.8], [-12, -116, 1.1], [12, -116.5, 1.1]]) {   // soft clouds beside the landing, not in front of the camera
   const c = makeCloud(x, 0.6, z, s * 0.55); c.rotation.y = x > 0 ? 0.3 : -0.3; }
-colliders.push({ x0: -4.5, x1: 4.5, z0: -20, z1: -15.6 }, { x0: -4.5, x1: 4.5, z0: -102.4, z1: -98 });
+{ const P = new THREE.Vector3(); for (let m = 1.5; m < RB.len; m += 1.5) { rbP(rbU(m), P); if (P.y > 0.8 && P.y < 3.6) colliders.push({ c: true, x: P.x, z: P.z, r: RB.W / 2 + 0.3 }); } }
 // start pad
-const PAD = new THREE.Vector3(0, 0, -12.6);
+const PAD = new THREE.Vector3(0, 0, ARCH.z0 + 3.4);   // start pad just south of the rainbow's foot
 const padG = new THREE.Group(); padG.position.copy(PAD); padG.position.y = 0.08; scene.add(padG);
 const padRing = mk(new THREE.RingGeometry(1.9, 2.5, 48), new THREE.MeshBasicMaterial({ color: 0xdddddd, transparent: true, opacity: 0.8 }), 0, 0.06, 0, padG); padRing.rotation.x = -Math.PI / 2;
 const padStar = mk(new THREE.ShapeGeometry(starShape(1.4, 0.6)), new THREE.MeshBasicMaterial({ color: 0xdddddd, transparent: true, opacity: 0.7 }), 0, 0.07, 0, padG); padStar.rotation.x = -Math.PI / 2;
@@ -1247,12 +1277,26 @@ function numberTex(n) { return canvasTex(256, 256, (g) => {
   g.fillStyle = '#ffffff'; g.beginPath(); g.arc(128, 128, 118, 0, TAU); g.fill(); g.lineWidth = 16; g.strokeStyle = hex(RAINBOW[(n - 1) % 7]); g.stroke();
   g.fillStyle = hex(RAINBOW[(n - 1) % 7]); g.font = 'bold 150px "Arial Rounded MT Bold", Arial'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), 128, 140); }); }
 const climbNums = [];
-for (let i = 1; i <= 10; i++) {
-  const u = 0.075 + (i - 1) * 0.042; const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: numberTex(i), transparent: true, depthWrite: false }));
-  const P = rbP(u), n = rbN(u); s.position.copy(P).addScaledVector(n, 2.0); s.position.x = (i % 2 ? -1 : 1) * (RB.W / 2 + 1.3);   // signs beside the slide, alternating sides
+const CLIMB_N = 20;
+for (let i = 1; i <= CLIMB_N; i++) {
+  const u = rbU(6) + (i - 1) / (CLIMB_N - 1) * (RB.uTop - rbU(9)); const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: numberTex(i), transparent: true, depthWrite: false }));
+  const P = rbP(u), n = rbN(u); s.position.copy(P).addScaledVector(n, 2.0).addScaledVector(rbS(u), (i % 2 ? -1 : 1) * (RB.W / 2 + 1.3));   // signs beside the slide, alternating sides
   s.scale.set(2, 2, 1); s.visible = false; scene.add(s);
   climbNums.push({ s, u, n: i, passed: false, pop: 0 });
 }
+
+// glowing rainbow-coloured arches over the slide on the way down: pass through them!
+const hoops = [];
+{ const hg = new THREE.TorusGeometry(RB.W / 2 + 0.9, 0.26, 10, 40, Math.PI), n = 7, P = new THREE.Vector3(), Nv = new THREE.Vector3(), S = new THREE.Vector3(), T = new THREE.Vector3(), m4 = new THREE.Matrix4();
+  for (let i = 0; i < n; i++) {
+    const u = RB.uTop + rbU(12) + i / (n - 1) * (1 - RB.uTop - rbU(24));
+    rbP(u, P); rbN(u, Nv); rbS(u, S); rbT(u, T);
+    const m = new THREE.Mesh(hg, M(RAINBOW[i % 7], { emissive: RAINBOW[i % 7], emissiveIntensity: 0.55 }));
+    m.position.copy(P).addScaledVector(Nv, RB.TH / 2); m.quaternion.setFromRotationMatrix(m4.makeBasis(S, Nv, T)); m.visible = false; scene.add(m);
+    hoops.push({ m, u, passed: false, pop: 0 });
+  }
+}
+const SLIDE_CHEERS = [0.18, 0.5, 0.82];   // moments on the way down where the narrator cheers
 
 /* =====================================================================
    PARTICLES
@@ -1359,7 +1403,7 @@ function updateTargets(dt) {
 // candidate spots on streets / plaza
 const SPOTS = [];
 { const add = (x, z) => { for (const c of colliders) { if (c.c ? Math.hypot(x - c.x, z - c.z) < c.r + 1.8 : (x > c.x0 - 1.8 && x < c.x1 + 1.8 && z > c.z0 - 1.8 && z < c.z1 + 1.8)) return; } SPOTS.push(new THREE.Vector3(x, 0, z)); };
-  for (let z = 32; z > -114; z -= 8) { if ((z > -24 && z < -8) || (z > -106 && z < -94)) continue; add(-4.5, z); add(4.5, z); }
+  for (let z = 32; z > -114; z -= 8) { if (z > 20 || z < -100) continue; add(-4.5, z); add(4.5, z); }   // not at the rainbow's feet
   for (const zc of [26, -44, -78]) for (let x = -56; x <= 56; x += 8) if (Math.abs(x) > 9) add(x, zc);
   for (const xc of [-32, 32]) for (let z = 32; z > -114; z -= 8) add(xc, z);
   for (let i = 0; i < 10; i++) { const a = i / 10 * TAU; add(Math.cos(a) * 10.5, Math.sin(a) * 10.5); } }
@@ -1415,6 +1459,7 @@ function mmShape(g, id, x, y, r) {
   else if (id === 'yildiz' || id === 'star') { starPath(g, x, y, r * 1.15, r * 0.5); }
   else { g.moveTo(x, y + r); g.bezierCurveTo(x - r * 1.6, y - r * 0.2, x - r * 0.6, y - r * 1.3, x, y - r * 0.4); g.bezierCurveTo(x + r * 0.6, y - r * 1.3, x + r * 1.6, y - r * 0.2, x, y + r); }
 }
+const _mmP = new THREE.Vector3(), _mmS = new THREE.Vector3();
 function mmDraw() {
   const show = ['ride', 'onfoot', 'mounting', 'land'].includes(G.mode);
   mm.classList.toggle('hidden', G.mode === 'start'); mm.classList.toggle('dim', !show); if (!show) return;
@@ -1423,8 +1468,9 @@ function mmDraw() {
   if (NOW - (MM.last || 0) < 1 / 30) return; MM.last = NOW;   // 30 fps is plenty for the map
   const g = mctx, s = MM.s, d = MM.d * clamp(mm.width / (226 * MM.d), 0.62, 1); g.drawImage(MM.bg, 0, 0);   // icon size follows map size
   // rainbow (bright when ready)
-  { const [x0, y0] = toMM(-RB.W / 2, RB.z0 - RB.L), [x1, y1] = toMM(RB.W / 2, RB.z0); const w = (x1 - x0) / 7;
-    g.globalAlpha = G.rainbowReady ? 1 : 0.25; for (let k = 0; k < 7; k++) { g.fillStyle = hex(RAINBOW[k]); g.fillRect(x0 + k * w, y0, w + 0.5, y1 - y0); }
+  { g.globalAlpha = G.rainbowReady ? 1 : 0.25; g.lineWidth = LANEW * s + 0.5; g.lineCap = 'butt';
+    for (let k = 0; k < 7; k++) { const off = -RB.W / 2 + (k + 0.5) * LANEW; g.strokeStyle = hex(RAINBOW[k]); g.beginPath();
+      for (let i = 0; i <= 60; i++) { const u = i / 60; rbP(u, _mmP); rbS(u, _mmS); const [x, y] = toMM(_mmP.x + _mmS.x * off, _mmP.z + _mmS.z * off); i ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); }
     g.globalAlpha = 1; }
   const guide = G.task && !G.task.done ? G.task.guide?.() : null;
   const pulse = 1 + Math.sin(NOW * 6) * 0.18;
@@ -1524,6 +1570,7 @@ const LN = {
   top: ['Vay canına! Gökkuşağının en tepesindeyiz!', 'Aşağıdaki şehir ne kadar küçük görünüyor!'],
   topReady: 'Kaymaya hazır mısın? Kay düğmesine bas!',
   slide: 'Kayıyoruz! Parmağını sağa sola kaydırarak yıldızları topla!',
+  slideFun: ['Vay, ne kadar hızlıyız! Sıkı tutun!', 'Halkaların içinden geçiyoruz! Yaşasın!', 'Neredeyse vardık!'],
   land: ['Yaşasın! Gökkuşağından kaydın!', 'Bak, çocuklar seni alkışlıyor!', 'Gökkuşağı yavaş yavaş kayboldu. Gökkuşakları kısa sürer.', 'Yeni bir gökkuşağı için yeni bir görev seni bekliyor!'],
   landStars: n => n === 1 ? 'Bir yıldız topladın!' : `Tam ${NUM[n]} yıldız topladın!`,
   greet: [nm => `Bak, ${nm} sana el sallıyor! Sen de ona dokunarak el salla.`, nm => `${nm} sana merhaba diyor! Ona dokun ve selam ver.`, nm => `Bak bak, arkadaşın ${nm} burada! Ona dokunup merhaba de!`],
@@ -1755,17 +1802,18 @@ const slideStarGeo = new THREE.ExtrudeGeometry(starShape(0.5, 0.22), { depth: 0.
 const slideStarM = M(0xffd84d, { emissive: 0xffb000, emissiveIntensity: 0.5 });
 function startSlide() {
   if (G.mode !== 'top') return;
-  G.mode = 'slide'; P.v = 4.5; G.slideStars = 0; $('btnSlide').classList.add('hidden');
+  G.mode = 'slide'; P.v = 3.5; G.slideStars = 0; $('btnSlide').classList.add('hidden');
   slideStars.forEach(s => scene.remove(s.m)); slideStars.length = 0;
-  let u = 0.56; const pv = new THREE.Vector3(), nv = new THREE.Vector3();
-  while (u < 0.95) { const lane = Math.floor(Math.random() * 7), cnt = 1 + Math.floor(Math.random() * 3);
-    for (let k = 0; k < cnt && u < 0.96; k++) { const x = -RB.W / 2 + (lane + 0.5) * LANEW; rbP(u, pv); rbN(u, nv);
-      const m = mk(slideStarGeo, slideStarM, x, pv.y + nv.y * 1.1, pv.z + nv.z * 1.1, scene, true); slideStars.push({ m, u, x, got: false }); u += 0.016; }
-    u += 0.035; }
+  let u = RB.uTop + rbU(8); const pv = new THREE.Vector3(), nv = new THREE.Vector3(), sv = new THREE.Vector3(), uEnd = 1 - rbU(7);
+  while (u < uEnd && slideStars.length < 20) { const lane = Math.floor(Math.random() * 7), cnt = 1 + Math.floor(Math.random() * 3);
+    for (let k = 0; k < cnt && u < uEnd; k++) { const x = -RB.W / 2 + (lane + 0.5) * LANEW; rbP(u, pv); rbN(u, nv); rbS(u, sv); pv.addScaledVector(nv, 1.1).addScaledVector(sv, x);
+      const m = mk(slideStarGeo, slideStarM, pv.x, pv.y, pv.z, scene, true); slideStars.push({ m, u, x, got: false }); u += rbU(3); }
+    u += rbU(4); }
+  hoops.forEach(h => { h.passed = false; }); G.cheerI = 0;
   say(LN.slide, { interrupt: true }); A.jump();
 }
 async function land() {
-  G.mode = 'land'; G.landT = 0; P.pos.set(P.x, 0, RB.z0 - RB.L); P.heading = Math.PI; A.setWhoosh(0);
+  G.mode = 'land'; G.landT = 0; P.pos.set(P.x, 0, ARCH.z1); P.heading = Math.PI; A.setWhoosh(0);
   confettiBurst(P.pos.clone().setY(3), 200); A.fanfare(); addStars(0);
   slideStars.forEach(s => scene.remove(s.m)); slideStars.length = 0;
   await say(LN.land[0], { interrupt: true });
@@ -1835,36 +1883,39 @@ function update(dt) {
     // Counting is synced to the voice: each sign is passed exactly when its number is spoken,
     // and the next sign is only reached after the previous number has finished.
     const nx = climbNums[G.nextNum];
-    let limit = 0.5; if (G.climbWait) limit = 0.035; else if (nx && G.numBusy) limit = nx.u - 0.002;
-    const sp = G.climbWait ? 0.012 : 0.036;
+    let limit = RB.uTop; if (G.climbWait) limit = rbU(1.5); else if (nx && G.numBusy) limit = nx.u - rbU(0.15);
+    const sp = rbU(G.climbWait ? 0.6 : 3.2);   // metres per second along the rainbow
     const oldU = P.u; P.u = Math.min(limit, P.u + dt * sp); const moving = P.u > oldU + 1e-5; P.x = damp(P.x, 0, 2, dt);
     placeOnRainbow(); animUnicorn(dt, moving ? 8 : 0, moving ? 'run' : 'idle'); riderPose(false);
     if (nx && !G.climbWait && !G.numBusy && P.u >= nx.u) {
       nx.passed = true; nx.pop = 0.001; G.nextNum++; A.number(nx.n - 1); sparks.burst(nx.s.position, RAINBOW[(nx.n - 1) % 7], 24, 4);
       G.numBusy = true; say(LN.num(nx.n), { interrupt: true }).then(() => G.numBusy = false);
     }
-    if (Math.random() < dt * 30) sparks.emit(P.x + rr(-1, 1), unicorn.position.y + rr(0, 1), unicorn.position.z + 1.2, rr(-1, 1), 1, 1, spick(RAINBOW), 1);
-    if (P.u >= 0.5) { P.u = 0.5; enterTop(); }
+    if (Math.random() < dt * 30) sparks.emit(unicorn.position.x + rr(-1, 1), unicorn.position.y + rr(0, 1), unicorn.position.z + 1.2, rr(-1, 1), 1, 1, spick(RAINBOW), 1);
+    if (P.u >= RB.uTop) { P.u = RB.uTop; enterTop(); }
   } else if (G.mode === 'top') {
     G.topT += dt; placeOnRainbow(); animUnicorn(dt, 0, 'idle'); riderPose(false); kidWave(feza, NOW);
     if (G.slideReadyT > 0 && NOW - G.slideReadyT > 9) startSlide();
   } else if (G.mode === 'slide') {
-    const L = rbSpeedLen(P.u), dy = RB.H * Math.PI * Math.cos(Math.PI * P.u), sinS = -dy / L;
-    P.v = clamp(P.v + (5 * sinS - 0.4) * dt, 4, 10.5); P.u += P.v * dt / L;
+    rbT(P.u, _v);   // speed follows the slope: slow over the top, faster and faster down the long side
+    P.v = clamp(P.v + (4.2 * -_v.y - 0.35) * dt, 3.5, 8.2); P.u += rbU(P.v * dt);   // a long, gliding ride
     const ix = (keys.ArrowRight || keys.KeyD ? 1 : 0) - (keys.ArrowLeft || keys.KeyA ? 1 : 0), lim = RB.W / 2 - 0.6;
     if (steerId !== null) P.x = damp(P.x, clamp((fingerX / innerWidth - 0.5) * 2.4, -1, 1) * lim, 7, dt);   // finger left/right = lane
     else P.x = clamp(P.x + ix * dt * 6.5, -lim, lim);
-    placeOnRainbow(); animUnicorn(dt, 0, 'slide'); riderPose(true);
+    placeOnRainbow(0.3); animUnicorn(dt, 0, 'slide'); riderPose(true);
     A.setWhoosh(clamp(P.v / 12, 0.2, 1));
-    if (Math.random() < dt * 60) sparks.emit(P.x + rr(-0.6, 0.6), unicorn.position.y + 0.3, unicorn.position.z + rr(0, 1.5), rr(-1, 1), rr(1, 3), rr(1, 3), spick(RAINBOW), 1.2);
+    if (Math.random() < dt * 60) sparks.emit(unicorn.position.x + rr(-0.6, 0.6), unicorn.position.y + 0.3, unicorn.position.z + rr(0, 1.5), rr(-1, 1), rr(1, 3), rr(1, 3), spick(RAINBOW), 1.2);
+    for (const h of hoops) if (!h.passed && P.u >= h.u) { h.passed = true; h.pop = 0.001; A.collect(); sparks.burst(h.m.position, null, 40, 6); }
+    const prog = (P.u - RB.uTop) / (1 - RB.uTop);
+    for (let k = 0; k < SLIDE_CHEERS.length; k++) if (G.cheerI === k && prog > SLIDE_CHEERS[k]) { G.cheerI++; say(LN.slideFun[k]); }
     for (const s of slideStars) {
       s.m.rotation.y += dt * 3;
-      if (!s.got && Math.abs(s.u - P.u) < 0.012 && Math.abs(s.x - P.x) < 0.85) { s.got = true; G.slideStars++; addStars(1); A.star(G.slideStars);
+      if (!s.got && Math.abs(s.u - P.u) < rbU(1.1) && Math.abs(s.x - P.x) < 0.85) { s.got = true; G.slideStars++; addStars(1); A.star(G.slideStars);
         sparks.burst(s.m.position, 0xffd84d, 24, 4); scene.remove(s.m); say(LN.num(Math.min(20, G.slideStars)), { ch: 'num' }); }
     }
     if (P.u >= 1) land();
   } else if (G.mode === 'land') {
-    G.landT += dt; const v = Math.max(0, P.v - G.landT * 8); P.pos.z = Math.max(-114, P.pos.z - v * dt);
+    G.landT += dt; const v = Math.max(0, P.v - G.landT * 8); P.pos.z = Math.max(-116, P.pos.z - v * dt);
     unicorn.position.set(P.pos.x, 0, P.pos.z); unicorn.rotation.set(0, P.heading, 0);
     animUnicorn(dt, 0, v > 1 ? 'slide' : 'idle'); if (v > 1) riderPose(true); else { riderPose(false); kidCheer(feza, NOW); }
     if (G.landT > 3.2) { G.mode = 'ride'; P.speed = 0; P.y = 0; }
@@ -1923,15 +1974,17 @@ function update(dt) {
   for (const h of hotAir) { h.a += dt * h.sp; h.g.position.set(Math.cos(h.a) * h.r, h.h + Math.sin(NOW * 0.4 + h.a * 3) * 1.5, -40 + Math.sin(h.a) * h.r); h.g.rotation.y = -h.a; }
   for (const c of climbNums) if (c.pop > 0) { c.pop += dt; const s = 2 + c.pop * 3; c.s.scale.set(s, s, 1); c.s.material.opacity = Math.max(0, 1 - c.pop * 1.5); if (c.pop > 0.7) c.s.visible = false; }
   if (Math.random() < 0.9) for (let i = 0; i < 3; i++) { const a = Math.random() * TAU; water.emit(Math.cos(a) * 0.15, 3.0, Math.sin(a) * 0.15, Math.cos(a) * rr(0.8, 1.6), rr(3, 4.5), Math.sin(a) * rr(0.8, 1.6), 0xbfe8ff, 0.9); }
+  { const full = rainbow.prog.every(p => p > 0.99); for (const h of hoops) { h.m.visible = full;
+    if (h.pop > 0) { h.pop += dt; const s = 1 + Math.sin(Math.min(1, h.pop * 3) * Math.PI) * 0.25; h.m.scale.setScalar(s); if (h.pop > 0.4) h.pop = 0; } } }
   rainbow.update(dt); updateTargets(dt); sparks.update(dt); hearts.update(dt); water.update(dt); updateConfetti(dt);
   ghost.material.opacity = G.rainbowReady ? 0.08 : 0.22 + Math.sin(NOW * 2) * 0.05; ghost.visible = rainbow.prog.some(p => p < 0.999);
 }
-function placeOnRainbow() {
-  rbP(P.u, _v); rbN(P.u, _n);
-  unicorn.position.set(P.x, _v.y + _n.y * RB.TH / 2, _v.z + _n.z * RB.TH / 2);
-  const dy = RB.H * Math.PI * Math.cos(Math.PI * P.u);
-  unicorn.rotation.set(Math.atan2(dy, RB.L), Math.PI, 0);
-  P.pos.set(P.x, 0, unicorn.position.z);
+const _pT = new THREE.Vector3(), _pN = new THREE.Vector3(), _pS = new THREE.Vector3(), _pX = new THREE.Vector3(), _pM = new THREE.Matrix4();
+function placeOnRainbow(lift = 0) {
+  rbP(P.u, _v); rbN(P.u, _pN); rbS(P.u, _pS); rbT(P.u, _pT);
+  unicorn.position.copy(_v).addScaledVector(_pN, RB.TH / 2 + lift).addScaledVector(_pS, P.x);
+  _pM.makeBasis(_pX.crossVectors(_pN, _pT), _pN, _pT); unicorn.quaternion.setFromRotationMatrix(_pM);
+  P.pos.set(unicorn.position.x, 0, unicorn.position.z);
 }
 function riderPose(slide) {
   const f = feza.userData; kidPoseReset(feza);
@@ -1952,9 +2005,9 @@ function updateCamera(dt) {
   else if (G.mode === 'intro' && G.cine) { const c = G.cine; c.t = Math.min(c.dur, c.t + dt); const e = ease(c.t / c.dur); _cp.lerpVectors(c.p0, c.p1, e); _cl.lerpVectors(c.l0, c.l1, e); k = 20; }
   else if (G.mode === 'onfoot' || G.mode === 'mounting' || G.mode === 'intro') { _cp.set(P.pos.x + 0.5, 6.5, P.pos.z + 10); _cl.set(P.pos.x - 1, 1.3, P.pos.z - 2); }
   else if (G.mode === 'ride') { _cp.set(P.pos.x, 9.5 + P.y * 0.3, P.pos.z + 13.5); _cl.set(P.pos.x, 1.5 + P.y * 0.5, P.pos.z - 2.5); }
-  else if (G.mode === 'climb') { rbP(Math.max(-0.02, P.u - 0.075), _cp); _cp.x = P.x * 0.5; _cp.y += 5.5; rbP(P.u + 0.05, _cl); _cl.x = P.x; _cl.y += 1.5; k = 5; }
-  else if (G.mode === 'top') { const a = -2.5 + G.topT * 0.07; rbP(0.5, _cl); _cl.y += 2; _cp.set(_cl.x + Math.sin(a) * 15, _cl.y + 4, _cl.z + Math.cos(a) * 15); k = 1.6; }
-  else if (G.mode === 'slide') { rbP(Math.max(0.47, P.u - 0.085), _cp); rbN(P.u, _n); _cp.addScaledVector(_n, 5.2); _cp.x = P.x * 0.6; rbP(Math.min(1.05, P.u + 0.07), _cl); _cl.x = P.x; _cl.y += 1; k = 7; }
+  else if (G.mode === 'climb') { rbP(Math.max(0, P.u - rbU(8)), _cp); _cp.y += 5.5; if (P.u < rbU(8)) _cp.z += (rbU(8) - P.u) * RB.len; rbP(P.u + rbU(6), _cl); _cl.y += 1.5; k = 5; }
+  else if (G.mode === 'top') { const a = -2.5 + G.topT * 0.07; rbP(RB.uTop, _cl); _cl.y += 2; _cp.set(_cl.x + Math.sin(a) * 15, _cl.y + 4, _cl.z + Math.cos(a) * 15); k = 1.6; }
+  else if (G.mode === 'slide') { rbP(Math.max(RB.uTop - rbU(4), P.u - rbU(9)), _cp); rbN(P.u, _n); _cp.addScaledVector(_n, 5.2).addScaledVector(rbS(P.u, _v2), P.x * 0.6); rbP(Math.min(1, P.u + rbU(10)), _cl); _cl.addScaledVector(rbS(P.u, _v2), P.x); _cl.y += 1; k = 7; }
   else if (G.mode === 'land') { if (G.landT < 1.2) { _cp.set(P.pos.x, 5, P.pos.z + 9); _cl.set(P.pos.x, 1.5, P.pos.z - 3); k = 4; }
     else { _cp.set(P.pos.x + 3, 3.4, P.pos.z - 8.5); _cl.set(P.pos.x, 2, P.pos.z); k = 2.5; } }
   camPos.x = damp(camPos.x, _cp.x, k, dt); camPos.y = damp(camPos.y, _cp.y, k, dt); camPos.z = damp(camPos.z, _cp.z, k, dt);
@@ -1968,6 +2021,11 @@ function updateCamera(dt) {
     for (const f of fadeables) { if (!f.tall) continue; const d = camInside(f, camPos); f.g.visible = f.g.visible ? d > 1.2 : d > 2.2; }
   } else { setXray(false); for (const f of fadeables) f.g.visible = true; }
   camera.lookAt(camLook);
+  // like a real rainbow: see-through when the camera comes very close to it (e.g. standing at its foot after landing)
+  { let dmin = 99; if (['ride', 'onfoot', 'mounting', 'land'].includes(G.mode)) for (let i = 0; i <= RB.N; i += 6) {
+      const dx = camera.position.x - RB.P[i * 3], dy = camera.position.y - RB.P[i * 3 + 1], dz = camera.position.z - RB.P[i * 3 + 2]; dmin = Math.min(dmin, dx * dx + dy * dy + dz * dz); }
+    const op = damp(rainbow.lanes[0].material.opacity, Math.sqrt(dmin) < 9 ? 0.28 : 1, 6, dt);
+    for (const l of rainbow.lanes) { l.material.opacity = op; l.material.transparent = op < 0.99; l.material.depthWrite = op >= 0.99; } }
   if (window.__cam) { camera.position.set(...window.__cam.p); camera.lookAt(...window.__cam.l); }
   sky.position.copy(camPos);
   const f = (G.mode === 'climb' || G.mode === 'top' || G.mode === 'slide') ? unicorn.position : camLook;
@@ -2059,7 +2117,7 @@ if ('serviceWorker' in navigator && /^https?:/.test(location.protocol) && !/ikon
   navigator.serviceWorker.register('sw.js').then(reg => navigator.serviceWorker.ready).then(reg => reg.active && reg.active.postMessage('sync')).catch(() => {});
 }
 window.__saveLines = () => fetch('/save-lines', { method: 'POST', body: JSON.stringify(allLines()) }).then(r => r.text());
-window.__game = { get feza() { return feza; }, get xrayOn() { return xrayOn; }, fadeables, MAP_ITEMS, A, N, VO, G, P, kids, camera, scene, renderer, pickKid, MM, toMM, startClimb, nextRound, rainbow, targets, say, now: () => NOW, step: (n = 60) => { for (let i = 0; i < n; i++) { update(1 / 60); updateCamera(1 / 60); } renderer.render(scene, camera); mmDraw(); } };
+window.__game = { get feza() { return feza; }, RB, rbP, rbN, unicorn, ghost, hoops, get xrayOn() { return xrayOn; }, fadeables, MAP_ITEMS, A, N, VO, G, P, kids, camera, scene, renderer, pickKid, MM, toMM, startClimb, nextRound, rainbow, targets, say, now: () => NOW, step: (n = 60) => { for (let i = 0; i < n; i++) { update(1 / 60); updateCamera(1 / 60); } renderer.render(scene, camera); mmDraw(); } };
 </script>
 </body>
 </html>

@@ -26,7 +26,8 @@ Feza, gökkuşağı unicornu Işıltı'ya biniyor, rengarenk şehirde görevleri
 1. **Renkler:** gökkuşağının 7 rengini sırayla bulma.
 2. **Sayma:** Işıltı için elma toplayıp sayma.
 3. **Şekiller:** daire, kare, üçgen, yıldız ve kalp şeklindeki balonları bulma.
-4. Her görevden sonra tırmanırken 1'den 10'a sayma, tepede bir bilgi, kayarken yıldız sayma.
+4. Her görevden sonra şehrin üstünden geçen dev gökkuşağına tırmanırken 1'den 20'ye sayma, tepede bir bilgi,
+   sonra halkaların içinden geçerek uzun bir kayış ve yıldız sayma.
 
 ## Dosyalar
 
