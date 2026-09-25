@@ -9,6 +9,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Feza ve Işıltı">
 <meta name="theme-color" content="#ffd6ea">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
   html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; touch-action: none; overscroll-behavior: none; -webkit-touch-callout: none; -webkit-text-size-adjust: 100%;
@@ -1961,6 +1964,21 @@ frame();
 $('btnStart').addEventListener('click', startGame);
 ['gesturestart', 'gesturechange', 'dblclick', 'contextmenu'].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
 document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+// ?ikon → poses Feza on Işıltı in front of the rainbow, used to render the app icon
+if (/ikon/.test(location.search)) {
+  $('start').classList.add('hidden'); $('hud').classList.add('hidden');
+  unicorn.userData.seat.add(feza); feza.position.set(0, 0, 0); feza.rotation.set(0, 0, 0); colliders.splice(colliders.indexOf(uniCol), 1);
+  G.mode = 'icon'; rainbow.setAll(1); rainbow.prog.fill(1); rainbow.update(0); balMesh.visible = strMesh.visible = false; arrow.visible = false;
+  const q = new URLSearchParams(location.search);
+  const cp = (q.get('cp') || '2.8,2.4,-2.6').split(',').map(Number), cl = (q.get('cl') || '0.1,2.2,-7.2').split(',').map(Number);
+  unicorn.position.set(0, 0, -7); unicorn.rotation.set(0, Number(q.get('h') || 1.1), 0);
+  window.__cam = { p: cp, l: cl }; camera.fov = Number(q.get('fov') || 34); camera.updateProjectionMatrix();
+  riderPose(false); feza.userData.blinkT = unicorn.userData.blinkT = 1e9; feza.userData.head.rotation.y = Number(q.get('hy') || -0.6); feza.userData.arms[1].rotation.set(0, 0, 2.5); animUnicorn(0.016, 0, 'idle');
+}
+// offline / "add to home screen" support (service workers only run over http/https, not file://)
+if ('serviceWorker' in navigator && /^https?:/.test(location.protocol) && !/ikon/.test(location.search)) {
+  navigator.serviceWorker.register('sw.js').then(reg => navigator.serviceWorker.ready).then(reg => reg.active && reg.active.postMessage('sync')).catch(() => {});
+}
 window.__saveLines = () => fetch('/save-lines', { method: 'POST', body: JSON.stringify(allLines()) }).then(r => r.text());
 window.__game = { A, N, VO, G, P, kids, camera, pickKid, MM, toMM, findPath, startClimb, nextRound, rainbow, targets, say, now: () => NOW, step: (n = 60) => { for (let i = 0; i < n; i++) { update(1 / 60); updateCamera(1 / 60); updateFade(1 / 60); } renderer.render(scene, camera); mmDraw(); } };
 </script>

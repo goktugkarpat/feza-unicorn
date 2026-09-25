@@ -7,7 +7,8 @@ Feza, gökkuşağı unicornu Işıltı'ya biniyor, rengarenk şehirde görevleri
 
 - **Bilgisayarda:** `index.html` dosyasına çift tıklamanız yeterli. Kurulum ya da internet gerekmez.
 - **iPad'de / internette:** Depoyu GitHub Pages ile yayınlayın (Settings › Pages › Branch: `main`, klasör: `/ (root)`).
-  Sonra iPad'de Safari ile `https://KULLANICI-ADI.github.io/DEPO-ADI/` adresini açıp Paylaş › **Ana Ekrana Ekle** diyebilirsiniz.
+  iPad'de Safari ile https://goktugkarpat.github.io/feza-unicorn/ adresini açıp Paylaş › **Ana Ekrana Ekle** deyin:
+  oyun kendi simgesiyle, tam ekran bir uygulama gibi açılır. İlk açılıştan sonra **internet olmadan da** çalışır (`sw.js` her şeyi cihaza kaydeder).
 
 ## Nasıl oynanır
 
@@ -35,6 +36,7 @@ Feza, gökkuşağı unicornu Işıltı'ya biniyor, rengarenk şehirde görevleri
 | `vendor/three.js` | 3D kütüphanesi (three.js r170, MIT lisansı) |
 | `voice/*.mp3`, `voice/manifest.js` | Türkçe kadın sesiyle kaydedilmiş anlatıcı cümleleri |
 | `gen_voice.py`, `voice/lines.json`, `voice/trimmed.txt` | Cümle değişirse sesleri yeniden üretmek için |
+| `manifest.webmanifest`, `sw.js`, `icons/` | iPad'de uygulama gibi açılma, simge ve internetsiz çalışma |
 | `serve.py` | İsteğe bağlı yerel sunucu (iPad'i aynı Wi-Fi'dan bağlamak için) |
 
 ## Cümleleri değiştirmek
