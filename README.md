@@ -12,7 +12,7 @@ Feza, gökkuşağı unicornu Işıltı'ya biniyor, rengarenk şehirde görevleri
 
 ## Nasıl oynanır
 
-- Başta hangi Feza ile oynayacağını seç: **Gökkuşağı Feza** (rengarenk kıyafet) ya da **Sade Feza** (fotoğraftaki tişört). Ekrana ilk dokunuşta müzik başlar.
+- Başta hangi Feza ile oynayacağını seç: **Gökkuşağı Feza** (rengarenk kıyafet) ya da **Feza** (fotoğraftaki tişört). Ekrana ilk dokunuşta müzik başlar.
 - Parmağını ekrana koy ve gezdir: Feza parmağın gittiği yere koşar (bilgisayarda fareyle tıklayıp sürükle ya da ok tuşları).
 - Sarı **Zıpla** düğmesi (klavyede Boşluk) zıplatır.
 - Sol alttaki **mini haritada** aranan şeyler (renkli yıldızlar, elmalar, şekilli balonlar) görünür; sıradaki hedefin etrafında sarı bir halka yanıp söner. Harita sadece yol gösterir, oraya Feza kendisi gider.
