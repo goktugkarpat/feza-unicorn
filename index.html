@@ -1415,12 +1415,6 @@ function pickSpots(n) {
   return out.map(v => v.clone());
 }
 
-/* ---------- Guide arrow ---------- */
-const arrow = new THREE.Group(); scene.add(arrow);
-{ const am = M(0xffd400, { emissive: 0xffaa00, emissiveIntensity: 0.55 });
-  const sh = mk(new THREE.CylinderGeometry(0.14, 0.14, 1.0, 12), am, 0, 0, -0.1, arrow); sh.rotation.x = Math.PI / 2;
-  const hd = mk(new THREE.ConeGeometry(0.4, 0.75, 16), am, 0, 0, 0.75, arrow); hd.rotation.x = Math.PI / 2; }
-
 /* =====================================================================
    MINI MAP (shows where things are; it does not steer)
    ===================================================================== */
@@ -1562,7 +1556,7 @@ const LN = {
   shWrong: (g, w) => `Bu bir ${g.name}. Biz şimdi ${w.acc} arıyoruz.`,
   shDone: 'Bütün balonları buldun! Çocuklar çok mutlu oldu.',
   padWarn: 'Gökkuşağı daha hazır değil. Önce görevimizi bitirelim.',
-  hint: 'Parmağınla sarı okun gösterdiği yere git Feza. Ok sana yolu gösteriyor.',
+  hint: 'Sol alttaki haritaya bak Feza, gideceğin yeri orada bulursun!',
   rbGo: 'Gökkuşağının başına git ve tırman! Parlayan yıldızın üstüne çık.',
   roam: 'Işıltı ile şehri gezelim!',
   mapHint: 'Sol alttaki haritaya bak! Aradığın şeyler orada. Sarı halka, sıradaki hedefi gösteriyor.',
@@ -1935,14 +1929,6 @@ function update(dt) {
     if (G.idleT > 14 && !G.jumpHinted && !N.busy()) { G.jumpHinted = true; say(LN.jumpHint); }
     if (G.idleT > 30 && !N.busy()) { G.idleT = 0; say(LN.hint); say(currentInstruction()); }
   }
-  // ---------------- guide arrow
-  let gt = null;
-  if (G.mode === 'onfoot') gt = unicorn.position;
-  else if (G.mode === 'ride' && G.task) gt = G.rainbowReady ? PAD : G.task.guide()?.g.position;
-  if (gt && dist2(gt, P.pos) > 3) {
-    arrow.visible = true; const a = Math.atan2(gt.x - P.pos.x, gt.z - P.pos.z);
-    arrow.rotation.y = a; arrow.position.set(P.pos.x + Math.sin(a) * 2.6, (G.mode === 'ride' ? 3.6 : 2.4) + P.y + Math.sin(NOW * 5) * 0.15, P.pos.z + Math.cos(a) * 2.6);
-  } else arrow.visible = false;
   // pad
   const ready = G.rainbowReady && G.mode === 'ride';
   padRing.material.color.set(ready ? 0xffd84d : 0xdddddd); padStar.material.color.set(ready ? 0xffe98a : 0xdddddd);
@@ -2105,7 +2091,7 @@ document.addEventListener('touchmove', e => e.preventDefault(), { passive: false
 if (/ikon/.test(location.search)) {
   $('start').classList.add('hidden'); $('hud').classList.add('hidden');
   unicorn.userData.seat.add(feza); feza.position.set(0, 0, 0); feza.rotation.set(0, 0, 0); colliders.splice(colliders.indexOf(uniCol), 1);
-  G.mode = 'icon'; rainbow.setAll(1); rainbow.prog.fill(1); rainbow.update(0); balMesh.visible = strMesh.visible = false; arrow.visible = false;
+  G.mode = 'icon'; rainbow.setAll(1); rainbow.prog.fill(1); rainbow.update(0); balMesh.visible = strMesh.visible = false;
   const q = new URLSearchParams(location.search);
   const cp = (q.get('cp') || '2.8,2.4,-2.6').split(',').map(Number), cl = (q.get('cl') || '0.1,2.2,-7.2').split(',').map(Number);
   unicorn.position.set(0, 0, -7); unicorn.rotation.set(0, Number(q.get('h') || 1.1), 0);
