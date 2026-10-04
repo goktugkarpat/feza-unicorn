@@ -5,3 +5,5 @@
 - Test ederken oyunu her zaman `?sessiz` ile aç (kullanıcının Mac'inde ses çalmasın).
 - GitHub'a SADECE kullanıcı "GitHub'a gönder" dediğinde gönder: `git add -A && git commit -m "..." && git push` (depo: github.com/goktugkarpat/feza-unicorn, GitHub Pages açık: https://goktugkarpat.github.io/feza-unicorn/). Aradaki değişiklikleri kendiliğinden push etme.
 - iPad uygulaması: `manifest.webmanifest`, `sw.js` (internetsiz çalışma; önemli değişiklikte `CACHE` sürümünü artır), `icons/`. Simge `index.html?sessiz&ikon` sayfasının 1024x1024 ekran görüntüsünden üretilir.
+
+- Grafikler fiziksel malzemeler ve yerel kabartma dokuları kullanır; sabit parçaları birleştirme ve ortak geometri sahipliği korunur. navigation.js tek dokunuş rotasını ve hareket boyunca hedef yakalamayı sağlar. Sürükleme/klavye otomatik rotayı iptal eder. Sessiz mod Audio/AudioContext oluşturmaz; anlatım yalnız kayıtlı Türkçe seslerle yapılır. iPad çözünürlüğünü koşu sırasında değiştirme. Runtime değişince sw.js içerik sürümü yenilenir; önbellek yalnız feza-unicorn- önekini temizler.

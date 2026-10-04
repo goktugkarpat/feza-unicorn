@@ -15,7 +15,7 @@ Feza, gökkuşağı unicornu Işıltı'ya biniyor, rengarenk şehirde görevleri
 - Başta hangi Feza ile oynayacağını seç: **Gökkuşağı Feza** (rengarenk kıyafet) ya da **Feza** (fotoğraftaki tişört). Ekrana ilk dokunuşta müzik başlar.
 - Parmağını ekrana koy ve gezdir: Feza parmağın gittiği yere koşar (bilgisayarda fareyle tıklayıp sürükle ya da ok tuşları).
 - Sarı **Zıpla** düğmesi (klavyede Boşluk) zıplatır.
-- Sol alttaki **mini haritada** aranan şeyler (renkli yıldızlar, elmalar, şekilli balonlar) görünür; sıradaki hedefin etrafında sarı bir halka yanıp söner. Harita sadece yol gösterir, oraya Feza kendisi gider.
+- Sol alttaki **mini haritada** aranan şeyler (renkli yıldızlar, elmalar, şekilli balonlar) görünür; sıradaki hedefin etrafında sarı bir halka yanıp söner. Haritadaki hedefe dokununca Feza binaların ve çeşmenin etrafından dolaşarak oraya gider. Sağdaki büyük hedef resmi de sıradaki göreve götürür.
 - Kayarken parmağını sağa sola kaydırarak yıldızları topla.
 - Şehirde Feza'nın arkadaşları var: **Deniz Ali, Efe, Gün, Asya, Gülru ve Zeynep Ada**. Biri el sallayınca başında 👋 çıkar; ona dokun: Feza el sallar, arkadaşı sevinir, bir yıldız kazanırsın.
 - 🔊 düğmesi son görevi tekrar okur, 🎵 müziği açar/kapatır.
@@ -34,6 +34,7 @@ Feza, gökkuşağı unicornu Işıltı'ya biniyor, rengarenk şehirde görevleri
 | Dosya | Ne işe yarar |
 |---|---|
 | `index.html` | Oyunun giriş ekranı ve görünümü |
+| `navigation.js` | Tek dokunuş için güvenli rota ve hızlı geçişte hedef yakalama |
 | `game.js` | JavaScript oyun motoru, animasyonlar ve anlatıcı cümleleri |
 | `vendor/three.js` | 3D kütüphanesi (three.js r170, MIT lisansı) |
 | `voice/*.mp3`, `voice/manifest.js` | Türkçe kadın sesiyle kaydedilmiş anlatıcı cümleleri |
@@ -56,3 +57,7 @@ python3 gen_voice.py      # sadece yeni/değişen cümleleri seslendirir
 Okunuşu düzeltilecek kelimeler `gen_voice.py` içindeki `PRONOUNCE` listesindedir (ör. unicorn → "yunikorn").
 
 Sesler Microsoft Edge'in çevrimiçi "tr-TR-EmelNeural" sesiyle üretilir.
+
+## Grafik ve kontrol yenilikleri
+
+Yumuşak fiziksel ışık, ortak gökyüzü yansıması, kabartmalı taş/çatı/zemin yüzeyleri, ayrıntılı ağaç taçları ve saplı çiçekler yerel olarak üretilir. Işıltı'nın yürüyüşü hızıyla uyumludur. Ekrandaki hedefe, haritaya veya hedef düğmesine dokunarak otomatik koşulur; sürükleme ve klavye her zaman kontrolü geri alır. Hareket boyunca hedef yakalama hızlı koşuda hedef atlamayı önler. iPad çözünürlüğü oyun sırasında değişmez. `?sessiz` ses öğesi veya AudioContext oluşturmaz.

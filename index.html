@@ -60,7 +60,7 @@
   .rbtn { font-size: 30px; width: 62px; height: 62px; border-radius: 50%; border: none; background: rgba(255,255,255,0.85); cursor: pointer;
     box-shadow: 0 6px 20px rgba(120,60,160,0.2); }
   .rbtn.off { opacity: 0.45; }
-  #minimap { position: absolute; left: 16px; bottom: 16px; width: 164px; height: 208px; border-radius: 20px; pointer-events: none;
+  #minimap { position: absolute; left: 16px; bottom: 16px; width: 164px; height: 208px; border-radius: 20px; pointer-events: auto;touch-action:none;
     box-shadow: 0 6px 20px rgba(120,60,160,0.35), 0 0 0 4px rgba(255,255,255,0.9); background: #9ade76; transition: opacity .4s; }
   #minimap.dim { opacity: 0; }
   #sub { position: absolute; left: 196px; right: 176px; bottom: 28px; width: fit-content; margin: 0 auto;
@@ -93,6 +93,12 @@
     #sub { left: 214px; right: 200px; font-size: 24px; }
   }
   @media (max-width: 820px) { #sub { font-size: 20px; padding: 10px 18px 10px 12px; } #sub .who { font-size: 28px; } }
+  #start {padding:16px;overflow-y:auto;} #start h1 {font-size:clamp(40px,8vh,88px);} #start h2 {font-size:clamp(20px,3.5vh,34px);margin:6px 0 16px;} .fcard canvas {width:clamp(150px,22vw,220px);height:clamp(180px,28vh,264px);} #start .parent {font-size:14px;padding:10px 16px;line-height:1.35;margin-top:16px;} #start .keyhint {margin-top:16px;font-size:18px;}
+  #btnGuide {position:absolute;right:28px;bottom:184px;width:116px;min-height:76px;border-radius:26px;border:4px solid #fff;background:#ffed94;color:#7150a4;font-family:inherit;font-size:32px;white-space:nowrap;pointer-events:auto;box-shadow:0 6px 0 #dcb250;touch-action:manipulation;}
+  #btnGuide:active {transform:translateY(3px);}
+  @media(pointer:coarse){#btnGuide{right:42px;bottom:208px;width:132px;min-height:80px;}}
+  @media(max-width:620px){#task{max-width:calc(100vw - 180px);min-width:0;padding:8px 12px;}#taskTitle{font-size:17px;}#taskIcons{gap:4px;}.ic{width:30px;height:30px;font-size:24px;}#topright{gap:5px;right:8px;top:12px;}#stars{font-size:20px;padding:8px;}.rbtn{width:48px;height:48px;font-size:25px;}#sub{left:12px;right:12px;bottom:264px;font-size:18px;max-width:calc(100vw - 24px);}#cards{gap:12px;}.fcard canvas{width:150px;height:180px;}#start h1{font-size:48px;}#start .parent{font-size:13px;margin:16px 12px;}#start .keyhint{font-size:16px;}}
+  @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;}}
   #fps { position: fixed; left: 8px; top: 8px; font: 12px monospace; color: #333; z-index: 30; }
 </style>
 <script src="voice/manifest.js"></script>
@@ -114,6 +120,7 @@
     <button data-k="ArrowUp">▲</button><button data-k="ArrowLeft">◀</button>
     <button data-k="ArrowRight">▶</button><button data-k="ArrowDown">▼</button>
   </div>
+  <button id="btnGuide" class="hidden" aria-label="Sıradaki hedefe git">🦄 ➜</button>
   <button id="btnJump">Zıpla!</button>
   <button id="btnSlide" class="hidden">Kay! 🌈</button>
 </div>
@@ -126,10 +133,11 @@
     <button class="fcard" data-o="sade"><canvas></canvas><span>Feza</span></button>
   </div>
   <div class="keyhint">Hangi Feza ile oynamak istersin? Birine dokun! <small>(klavyede ← → ve Boşluk)</small></div>
-  <div class="parent"><b>Nasıl oynanır:</b> Parmağını ekrana koy ve <b>gezdir</b>: Feza parmağın gittiği yere koşar. Sarı <b>Zıpla</b> düğmesiyle zıplar.
+  <div class="parent"><b>Nasıl oynanır:</b> Parmağını ekrana koy ve <b>gezdir</b>: Feza parmağın gittiği yere koşar. Sıradaki hedefin resmine ya da haritaya dokun: Işıltı binaların etrafından dolaşır. Sarı <b>Zıpla</b> düğmesiyle zıplar.
     Kayarken parmağını sağa sola kaydır. 🔊 düğmesi son görevi tekrar okur. Klavyede ok tuşları ve Boşluk da çalışır. Sesi açmayı unutmayın!</div>
 </div>
 
+<script src="navigation.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
