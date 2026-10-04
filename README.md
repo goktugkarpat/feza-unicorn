@@ -33,7 +33,8 @@ Feza, gökkuşağı unicornu Işıltı'ya biniyor, rengarenk şehirde görevleri
 
 | Dosya | Ne işe yarar |
 |---|---|
-| `index.html` | Oyunun tamamı |
+| `index.html` | Oyunun giriş ekranı ve görünümü |
+| `game.js` | JavaScript oyun motoru, animasyonlar ve anlatıcı cümleleri |
 | `vendor/three.js` | 3D kütüphanesi (three.js r170, MIT lisansı) |
 | `voice/*.mp3`, `voice/manifest.js` | Türkçe kadın sesiyle kaydedilmiş anlatıcı cümleleri |
 | `gen_voice.py`, `voice/lines.json`, `voice/trimmed.txt` | Cümle değişirse sesleri yeniden üretmek için |
@@ -42,7 +43,7 @@ Feza, gökkuşağı unicornu Işıltı'ya biniyor, rengarenk şehirde görevleri
 
 ## Cümleleri değiştirmek
 
-Oyundaki tüm cümleler `index.html` içindeki `LN` bölümündedir. Bir cümleyi değiştirdikten sonra:
+Oyundaki tüm cümleler `game.js` içindeki `LN` bölümündedir. Bir cümleyi değiştirdikten sonra:
 
 ```bash
 python3 -m pip install edge-tts
