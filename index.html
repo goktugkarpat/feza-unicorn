@@ -2040,8 +2040,7 @@ function camFree(o, d, L) {   // how far the camera can go from Feza's head alon
 /* =====================================================================
    LOOP
    ===================================================================== */
-const clock = new THREE.Clock(); let fpsT = 0, fpsN = 0, qT = 0, qN = 0; const showFps = /debug/.test(location.search);
-if (showFps) { const d = document.createElement('div'); d.id = 'fps'; document.body.appendChild(d); }
+const clock = new THREE.Clock(); let qT = 0, qN = 0;
 function frame() {
   const dt = Math.min(clock.getDelta(), 0.05);
   update(dt); updateCamera(dt);
@@ -2050,7 +2049,6 @@ function frame() {
   if (G.mode !== 'start') { qT += dt; qN++; if (qT > 3) { const fps = qN / qT; qT = 0; qN = 0;
     if (fps < 42 && pixelRatio > 0.9) { pixelRatio = Math.max(0.85, pixelRatio - 0.25); renderer.setPixelRatio(pixelRatio); renderer.setSize(innerWidth, innerHeight); } } }
   renderer.render(scene, camera);
-  if (showFps) { fpsT += dt; fpsN++; if (fpsT > 1) { $('fps').textContent = `${fpsN} fps · ${renderer.info.render.calls} calls`; fpsT = 0; fpsN = 0; } }
   requestAnimationFrame(frame);
 }
 frame();
@@ -2103,7 +2101,6 @@ if ('serviceWorker' in navigator && /^https?:/.test(location.protocol) && !/ikon
   navigator.serviceWorker.register('sw.js').then(reg => navigator.serviceWorker.ready).then(reg => reg.active && reg.active.postMessage('sync')).catch(() => {});
 }
 window.__saveLines = () => fetch('/save-lines', { method: 'POST', body: JSON.stringify(allLines()) }).then(r => r.text());
-window.__game = { get feza() { return feza; }, RB, rbP, rbN, unicorn, ghost, hoops, get xrayOn() { return xrayOn; }, fadeables, MAP_ITEMS, A, N, VO, G, P, kids, camera, scene, renderer, pickKid, MM, toMM, startClimb, nextRound, rainbow, targets, say, now: () => NOW, step: (n = 60) => { for (let i = 0; i < n; i++) { update(1 / 60); updateCamera(1 / 60); } renderer.render(scene, camera); mmDraw(); } };
 </script>
 </body>
 </html>
