@@ -60,4 +60,15 @@ Sesler Microsoft Edge'in çevrimiçi "tr-TR-EmelNeural" sesiyle üretilir.
 
 ## Grafik ve kontrol yenilikleri
 
-Yumuşak fiziksel ışık, ortak gökyüzü yansıması, kabartmalı taş/çatı/zemin yüzeyleri, ayrıntılı ağaç taçları ve saplı çiçekler yerel olarak üretilir. Işıltı'nın yürüyüşü hızıyla uyumludur. Ekrandaki hedefe, haritaya veya hedef düğmesine dokunarak otomatik koşulur; sürükleme ve klavye her zaman kontrolü geri alır. Hareket boyunca hedef yakalama hızlı koşuda hedef atlamayı önler. iPad çözünürlüğü oyun sırasında değişmez. `?sessiz` ses öğesi veya AudioContext oluşturmaz.
+Yumuşak fiziksel ışık ve ortak gökyüzü yansıması kullanılır. Taş, ahşap, kiremit ve çim yüzeylerinde Poly Haven’dan alınmış CC0 kaplamalar pastel renklere uyarlanır; ayrıntılı ağaçlar ve çiçekler ortak geometriyle çizilir. Işıltı'nın yürüyüşü hızıyla uyumludur. Ekrandaki hedefe, haritaya veya hedef düğmesine dokunarak otomatik koşulur; sürükleme ve klavye her zaman kontrolü geri alır. Hareket boyunca hedef yakalama hızlı koşuda hedef atlamayı önler. iPad çözünürlüğü oyun sırasında değişmez. `?sessiz` ses öğesi veya AudioContext oluşturmaz.
+
+
+## Şehir cilası (v12)
+
+- Evlerde iki çatı biçimi, yuvarlak çatı pencereleri, kemerli girişler, küçük sütunlar, köşe taşları ve baca kapakları; kulelerde kat silmeleri, kaburgalar ve taç ayrıntıları bulunur.
+- Feza’nın kıyafet kenarları ve ayakkabıları ayrıntılandırıldı. Işıltı’nın kulakları ve yelesi hareket eder; yürüyüş, zıplama ve kayma pozları yumuşak geçişlerle birleşir. Ağaçların dalları ve kökleri görünür.
+- Mini harita bilgisayarda 205×260, tablette 225×285 piksel oldu. Dar telefon ve yatay ekranlarda kontrollerle çakışmayacak şekilde uyarlanır.
+- Çocuklar Feza yanlarından geçerken sürekli el sallamaz. Selam daveti yalnız Feza kısa süre durunca, anlatıcı ve yakın görev hedefi uygunken çıkar; her arkadaş bir kez davet eder, davetler arasında en az 90 saniye vardır. El sallama kısa sürer, davet hareket başlayınca kapanır. İstenirse arkadaşlara dokunarak hâlâ selam verilebilir.
+- Görev nesneleri şehri kaplayan uzun ışık sütunları yerine renkli halolarla ve sıradaki hedefte küçük bir işaretle gösterilir. Çeşmenin yüzeyinde yumuşak halkalar, kenarlarında heykelsi ayrıntılar vardır.
+- Yeni yüzeyler toplam yaklaşık 475 KB’lık tek yerel pakette bulunur (`assets/surfaces.js`). İnternet isteği olmadan ve `file://` ile açılır; çevrimdışı önbelleğe dahil edilir. Kaynaklar: [ASSET-LICENSES.md](ASSET-LICENSES.md).
+- Gökkuşağı başlangıcına otomatik rotayı engelleyen geniş dairesel çarpışma alanı gerçek ayak biçimine daraltıldı. Şekilli balonlar yeni görevlerde aynı geometriyi tekrar kullanır.
